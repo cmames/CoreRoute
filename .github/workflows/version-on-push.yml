@@ -35,5 +35,4 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Publier sur npm
-        if: github.ref_type == 'tag' # Condition: publier seulement sur les tags
         run: npm publish
