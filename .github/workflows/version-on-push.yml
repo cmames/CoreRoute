@@ -1,12 +1,14 @@
-name: Création de Tag de Version au Push
+name: Création de Tag et Publication NPM au Tag
 
 on:
   push:
     branches:
-      - main
+      - main # Branche sur laquelle le workflow se déclenche (ajustez si besoin)
+    tags:        # Déclenchement aussi sur la création de tags
+      - 'v*.*.*'  # Modèle de tag à surveiller (ex: v1.0.0, v2.3.4)
 
 jobs:
-  tagging:
+  tagging_and_publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -22,3 +24,16 @@ jobs:
           git push origin --tags
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Configurer Node.js pour npm publish
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18 # ou la version de Node.js que vous utilisez
+          registry-url: https://registry.npmjs.org/ # URL du registre npm (public)
+      - name: Authentification auprès de npm
+        run: |
+          npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publier sur npm
+        if: github.ref_type == 'tag' # Condition: publier seulement sur les tags
+        run: npm publish

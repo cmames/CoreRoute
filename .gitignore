@@ -25,3 +25,6 @@ coverage/
 
 #  Script local pour github
 .github/scripts/
+
+#  tokens
+token*

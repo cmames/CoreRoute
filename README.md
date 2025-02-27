@@ -20,6 +20,7 @@ CoreRoute is a lightweight and straightforward HTTP router class designed for No
 *   [Usage](#usage)
     *   [TypeScript Example](#typescript-example)
     *   [JavaScript Example](#javascript-example)
+*   [For Developers - Building from Source](#for-developers---building-from-source)
 *   [Documentation](#documentation)
 *   [License](#license)
 *   [Author](#author)
@@ -71,7 +72,77 @@ router.serveStaticFiles('./public'); // Serve static files from the 'public' fol
 router.listen(3000, () => {
     console.log('Server listening on port 3000');
 });
-```
+``` 
+
+## Building from Source
+**for developpers**
+
+If you want to clone the CoreRoute repository and build it yourself from source, follow these steps:
+
+
+After following these steps, you will have a local build of CoreRoute, and you can start experimenting with it, running tests, or modifying the code.
+
+## For Developers - Building from Source
+
+**Warning: These instructions are primarily for developers who wish to contribute to CoreRoute or modify the library's source code. If you simply want to use CoreRoute in your project, please refer to the [Installation](#installation) section above to install the published package from npm.**
+
+If you are a developer and want to build CoreRoute from source, follow these steps:
+
+1.  **Clone the repository:**
+
+    ```bash
+    git clone [URL_DE_VOTRE_REPO_GIT]
+    cd coreroute
+    ```
+    *(Replace `[URL_DE_VOTRE_REPO_GIT]` with the actual URL of your Git repository)*
+
+2.  **Install dependencies:**
+
+    Make sure you have [Node.js](https://nodejs.org/) and [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/) installed. Then, install the project dependencies by running:
+
+    ```bash
+    npm install
+    # or if you use yarn:
+    yarn install
+    ```
+
+3.  **Build the TypeScript code:**
+
+    To compile the TypeScript source code into JavaScript, run the build script defined in `package.json`:
+
+    ```bash
+    npm run build
+    # or if you use yarn:
+    yarn run build
+    ```
+
+    This command will typically use the TypeScript compiler (`tsc`) to generate the JavaScript files in the `dist` directory.
+
+4.  **Generate documentation (optional):**
+
+    To generate the API documentation in Markdown format, you can use the `docs` script:
+
+    ```bash
+    npm run docs
+    ```
+    This will generate the documentation files in the `docs` directory. Make sure you have the `typedoc` and `typedoc-plugin-markdown` dependencies installed (they are listed in `devDependencies` in `package.json`).
+
+5.  **Run examples (optional):**
+
+    After building the project, you can run the example code provided in the repository to test CoreRoute.  Navigate to the directory containing the example files (if any) and run them using Node.js. For example, if you have an example file named `example.js`:
+
+    ```bash
+    node example.js
+    ```
+    Or if you have examples in TypeScript that are compiled to JavaScript in the `dist` directory, you might run them from there:
+
+    ```bash
+    node dist/example.js
+    ```
+    Adjust the path and filename according to your project's structure and example file names.
+
+You can then modify the source code, rebuild, and test your changes.  If you intend to contribute back to the project, please follow the contribution guidelines (if any) outlined in the repository.
+
 ## Documentation
 
 For detailed API documentation, please refer to the generated documentation in the [**docs**](./docs) folder of this npm package after installation. You can find information about all classes, methods, and types available in CoreRoute within the documentation.
