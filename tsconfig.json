@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es2022",         // Cibler une version Node.js récente (ou celle que vous visez comme compatibilité minimale)
+    "module": "commonjs",       // Modules CommonJS pour Node.js (ou "esmodule" si vous visez les modules ES - un peu plus complexe pour l'instant)
+    "outDir": "./dist",        // AJOUTEZ CETTE LIGNE : Dossier de sortie pour les fichiers JS compilés
+    "rootDir": "./src",         // AJOUTEZ CETTE LIGNE : Dossier source pour les fichiers TS (optionnel, mais bonne pratique)
+    "declaration": true,        // AJOUTEZ CETTE LIGNE : Générer les fichiers de déclaration .d.ts
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,             // Options de vérification stricte (fortement recommandé)
+    "skipLibCheck": true
+  },
+  "include": ["src"],             // AJOUTEZ CETTE LIGNE : Inclure uniquement le dossier src (ou vos sources TS)
+  "exclude": ["node_modules", "**/*.spec.ts"] // EXEMPLE : Exclure node_modules et les fichiers de tests (ajustez selon vos besoins)
+}
