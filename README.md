@@ -38,7 +38,7 @@ Getting started with CoreRoute is simple. Here's a basic example demonstrating h
 
 ### TypeScript Example
 ```typescript
-import CoreRoute from 'coreroute';
+import { CoreRoute } from 'coreroute';
 import * as http from 'http';
 
 const router = new CoreRoute();
@@ -57,7 +57,7 @@ router.listen(3000, () => {
 
 ### Javascript Example
 ```javascript
-import CoreRoute from 'coreroute';
+import { CoreRoute } from 'coreroute';
 
 const router = new CoreRoute();
 
