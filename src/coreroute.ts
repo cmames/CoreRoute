@@ -166,44 +166,81 @@ export class CoreRoute {
         this.#isStaticServingEnabled = true;
     }
 
-    /**
-     * Starts the HTTP or HTTPS server and begins listening for incoming requests on the specified port.<br>
-     * If `options` are provided, an HTTPS server will be created. Otherwise, an HTTP server will be created.<br>
-     *<br>
-     * @param {number} port The port number to listen on (e.g., 80, 443, 3000).
-     * @param {object} [options] Optional HTTPS options object. If provided, an HTTPS server will be created.
-     *                           This object should contain configuration for HTTPS.
-     *                           See {@link https://nodejs.org/api/https.html#httpscreateserveroptions-requestlistener} for all available options.
-     *                           Example shows minimal required properties.
-     *                           @param {string|Buffer} [options.key] - Private key for SSL/TLS. Path to private key file or the key itself as a Buffer.
-     *                           @param {string|Buffer} [options.cert] - Public x509 certificate for SSL/TLS. Path to certificate file or the certificate itself as a Buffer.
-     * @param {function} [callback] An optional callback function executed once the server starts listening.
-     *
-     * @example <caption>Start an HTTPS server</caption>
-     * const httpsOptions = {
-     *   key: fs.readFileSync('./ssl/privateKey.pem'),
-     *   cert: fs.readFileSync('./ssl/certificate.pem')
-     * };
-     * coreroute.listen(443, httpsOptions, () => {
-     *   console.log('HTTPS server listening on port 443');
-     * });
-     */
-    listen(port: number, options?: https.ServerOptions, callback?: () => void): void {  
-        let server: http.Server | https.Server; // On type server comme pouvant être http.Server OU https.Server
-        if (options && options.key && options.cert) { 
-            server = https.createServer(options, this.#dispatch.bind(this));
-            console.log("Starting HTTPS server..."); 
-        } else {
-            server = http.createServer(this.#dispatch.bind(this));
-            console.log("Starting HTTPS server...");
-        }
-        this.#serverInstance = server;
-		this.#serverInstance.on('error', (error: Error) => {
-			console.error('CoreRoute - Server startup error : ', error.message); 
-		});
+    /**
+     * Starts the server on the specified port, optionally with HTTPS.<br>
+     * This method can start either an HTTP server or an HTTPS server based on the arguments provided.<br>
+     * <br>
+     * **Overloads:**
+     *
+     * 1.  `listen(port: number, callback?: () => void): void` - Starts an HTTP server.
+     * 2.  `listen(port: number, options?: https.ServerOptions, callback?: () => void): void` - Starts an HTTPS server if `options` are provided, otherwise defaults to HTTP.
+     *
+     * @param {number} port The port number on which the server should listen.
+     * @param {https.ServerOptions | (() => void)} [optionsOrCallback] Either HTTPS server options or a callback function.
+     *                                                    If it's an object, it's treated as HTTPS options.
+     *                                                    If it's a function, it's treated as the callback for HTTP server start.
+     *                                                    If omitted, no callback is executed after server starts.
+     * @param {() => void} [callback] An optional callback function to be executed once the server starts listening.
+     *                                 This is used only when the second argument is HTTPS options.
+     * @returns {void}
+     * @example
+     * ```typescript
+     * // Start HTTP server with a callback
+     * router.listen(3000, () => {
+     *   console.log('HTTP server listening on port 3000');
+     * });
+     *
+     * // Start HTTPS server with options and a callback
+     * const httpsOptions = { ... };
+     * router.listen(443, httpsOptions, () => {
+     *   console.log('HTTPS server listening on port 443');
+     * });
+     *
+     * // Start HTTP server without a callback
+     * router.listen(8080);
+     *
+     * // Start HTTPS server with options but without a callback
+     * const httpsOptionsNoCallback = { ... };
+     * router.listen(8443, httpsOptionsNoCallback);
+     * ```
+     */
+    listen(port: number, optionsOrCallback?: https.ServerOptions | (() => void), callback?: () => void): void {
+        let server: http.Server | https.Server;
+        let options: https.ServerOptions | undefined = undefined;
+        let listenCallback: (() => void) | undefined = undefined;
 
-        server.listen(port, callback);
-    }
+        if (typeof optionsOrCallback === 'function') {
+            // Cas 1: listen(port, callback?) - HTTP avec callback optionnel
+            listenCallback = optionsOrCallback;
+            console.log("Starting HTTP server...");
+            server = http.createServer(this.#dispatch.bind(this));
+        } else if (typeof optionsOrCallback === 'object' && optionsOrCallback !== null) {
+            // Cas 2: listen(port, options?, callback?) - HTTPS (ou HTTP avec options ?)
+            options = optionsOrCallback as https.ServerOptions; // Cast pour le type HTTPS options
+            listenCallback = callback;
+            server = https.createServer(options, this.#dispatch.bind(this));
+            console.log("Starting HTTPS server...");
+        } else {
+            // Cas 3: listen(port) - HTTP sans callback
+            console.log("Starting HTTP server...");
+            server = http.createServer(this.#dispatch.bind(this));
+        }
+        this.#serverInstance = server;
+
+        this.#serverInstance.on('error', (error: Error) => {
+            console.error('CoreRoute - Server startup error:', error.message);
+        });
+
+        console.log("Inside server.listen call");
+        server.listen(port, () => {
+            console.log('Listen callback - port:', port);
+            if (listenCallback) { // Utiliser listenCallback (le callback déterminé dynamiquement)
+                listenCallback();
+            } else {
+                console.log("No listen callback provided or executed."); // Message plus informatif
+            }
+        });
+    }
 
 
     /**

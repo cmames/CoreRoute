@@ -2,199 +2,88 @@
 
 ***
 
-<a name="CoreRoute"></a>
+# CoreRoute
 
-## CoreRoute
-A simplified HTTP Router class for Node.js applications.<br><br>This class allows you to define routes for different HTTP methods (GET, PUT, POST, DELETE, PATCH, ALL)<br>and to serve static files from a specified folder. It is designed as a lightweight alternative<br>to full-fledged frameworks like ExpressJS for simpler projects.<br><br>
+[![npm version](https://badge.fury.io/js/coreroute.svg)](https://badge.fury.io/js/coreroute.svg) [![License: GPL-3.0-or-later](https://img.shields.io/badge/License-GPL--3.0--or--later-blueviolet)](https://spdx.org/licenses/GPL-3.0-or-later.html)
 
-**Kind**: global class  
-**Author**: Mames Christophe  
-**License**: GPL-3.0-or-later  
+**A Simplified HTTP Router for Node.js Applications**
 
-* [CoreRoute](#CoreRoute)
-    * [new CoreRoute()](#new_CoreRoute_new)
-    * [.get(route, callback)](#CoreRoute+get)
-    * [.put(route, callback)](#CoreRoute+put)
-    * [.post(route, callback)](#CoreRoute+post)
-    * [.delete(route, callback)](#CoreRoute+delete)
-    * [.patch(route, callback)](#CoreRoute+patch)
-    * [.all(route, callback)](#CoreRoute+all)
-    * [.serveStaticFiles(folder)](#CoreRoute+serveStaticFiles)
-    * [.listen(port, [callback])](#CoreRoute+listen)
-    * [.listen(port, [options], [callback])](#CoreRoute+listen)
+CoreRoute is a lightweight and straightforward HTTP router class designed for Node.js applications. It provides a streamlined approach to defining routes for various HTTP methods and serving static files, making it an ideal choice for simpler projects where the full complexity of frameworks like ExpressJS might be overkill.
 
-<a name="new_CoreRoute_new"></a>
+**Key Features:**
 
-### new CoreRoute()
-Constructor for the CoreRoute class.<br>Initializes route storage and server settings.<br>
+*   **Simplified Routing:** Define routes for GET, PUT, POST, DELETE, PATCH, and ALL HTTP methods with ease.
+*   **Static File Serving:**  Enable serving static files from a designated folder with a single method call.
+*   **Lightweight & Focused:** Designed to be a lean and efficient alternative to larger frameworks for basic routing needs.
+*   **TypeScript Ready:**  Written in TypeScript and provides type definitions for a seamless TypeScript development experience.
+*   **Easy to Use:**  Simple and intuitive API for quick setup and route definition.
 
-<a name="CoreRoute+get"></a>
+**Table of Contents**
 
-### coreRoute.get(route, callback)
-Defines a callback function for handling GET requests to a specific route.<br><br>
+*   [Installation](#installation)
+*   [Usage](#usage)
+    *   [TypeScript Example](#typescript-example)
+    *   [JavaScript Example](#javascript-example)
+*   [Documentation](#documentation)
+*   [License](#license)
+*   [Author](#author)
 
-**Kind**: instance method of [<code>CoreRoute</code>](#CoreRoute)  
+## Installation
 
-| Param | Type | Description |
-| --- | --- | --- |
-| route | <code>string</code> | The path for the GET request (e.g., '/api/users'). |
-| callback | <code>function</code> | The function to handle the GET request.                           This function receives `req` and `res` objects as arguments. |
-| callback.req | <code>http.IncomingMessage</code> | An http.IncomingMessage object. |
-| callback.res | <code>http.ServerResponse</code> | An http.ServerResponse object. |
+You can install CoreRoute using npm:
 
-**Example**  
-```js
-coreroute.get('/api/users', (req, res) => {  res.writeHead(200, {'Content-Type': 'application/json'});  res.end(JSON.stringify({ message: 'User data' }));});
+```bash
+npm install coreroute
 ```
-<a name="CoreRoute+put"></a>
 
-### coreRoute.put(route, callback)
-Defines a callback function for handling PUT requests to a specific route.<br><br>
+## Usage
+Getting started with CoreRoute is simple. Here's a basic example demonstrating how to create a router, define a route, and start the server.  
+**Note:**  For static file serving to work, you need to create a 'public' folder in your project root and place your static files inside it.  
 
-**Kind**: instance method of [<code>CoreRoute</code>](#CoreRoute)  
+### TypeScript Example
+```typescript
+import { CoreRoute } from 'coreroute';
+import * as http from 'http';
 
-| Param | Type | Description |
-| --- | --- | --- |
-| route | <code>string</code> | The path for the PUT request. |
-| callback | <code>function</code> | The function to handle the PUT request.                           This function receives `req` and `res` objects as arguments. |
-| callback.req | <code>http.IncomingMessage</code> | An http.IncomingMessage object. |
-| callback.res | <code>http.ServerResponse</code> | An http.ServerResponse object. |
+const router = new CoreRoute();
 
-**Example**  
-```js
-coreroute.put('/api/items/:id', (req, res) => {  // Handle update item logic});
-```
-<a name="CoreRoute+post"></a>
+router.get('/api/hello', (req: http.IncomingMessage, res: http.ServerResponse) => {
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end('Hello World from CoreRoute!');
+});
 
-### coreRoute.post(route, callback)
-Defines a callback function for handling POST requests to a specific route.<br><br>
+router.serveStaticFiles('./public'); // Serve static files from the 'public' folder
 
-**Kind**: instance method of [<code>CoreRoute</code>](#CoreRoute)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| route | <code>string</code> | The path for the POST request. |
-| callback | <code>function</code> | The function to handle the POST request.                           This function receives `req` and `res` objects as arguments |
-| callback.req | <code>http.IncomingMessage</code> | An http.IncomingMessage object. |
-| callback.res | <code>http.ServerResponse</code> | An http.ServerResponse object.. |
-
-**Example**  
-```js
-coreroute.post('/api/items', (req, res) => {  // Handle create item logic});
-```
-<a name="CoreRoute+delete"></a>
-
-### coreRoute.delete(route, callback)
-Defines a callback function for handling DELETE requests to a specific route.<br><br>
-
-**Kind**: instance method of [<code>CoreRoute</code>](#CoreRoute)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| route | <code>string</code> | The path for the DELETE request. |
-| callback | <code>function</code> | The function to handle the DELETE request.                           This function receives `req` and `res` objects as arguments. |
-| callback.req | <code>http.IncomingMessage</code> | An http.IncomingMessage object. |
-| callback.res | <code>http.ServerResponse</code> | An http.ServerResponse object. |
-
-**Example**  
-```js
-coreroute.delete('/api/items/:id', (req, res) => {  // Handle delete item logic});
-```
-<a name="CoreRoute+patch"></a>
-
-### coreRoute.patch(route, callback)
-Defines a callback function for handling PATCH requests to a specific route.<br><br>
-
-**Kind**: instance method of [<code>CoreRoute</code>](#CoreRoute)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| route | <code>string</code> | The path for the PATCH request. |
-| callback | <code>function</code> | The function to handle the PATCH request.                           This function receives `req` and `res` objects as arguments. |
-| callback.req | <code>http.IncomingMessage</code> | An http.IncomingMessage object. |
-| callback.res | <code>http.ServerResponse</code> | An http.ServerResponse object. |
-
-**Example**  
-```js
-coreroute.patch('/api/items/:id', (req, res) => {  // Handle partial update item logic});
-```
-<a name="CoreRoute+all"></a>
-
-### coreRoute.all(route, callback)
-Defines a callback function for handling requests for ALL HTTP methods to a specific route.<br>This is useful for implementing route handlers that should respond to any type of HTTP request.<br><br>
-
-**Kind**: instance method of [<code>CoreRoute</code>](#CoreRoute)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| route | <code>string</code> | The path for the ALL methods request. |
-| callback | <code>function</code> | The function to handle all types of requests to this route.                           This function receives `req` and `res` objects as arguments. |
-| callback.req | <code>http.IncomingMessage</code> | An http.IncomingMessage object. |
-| callback.res | <code>http.ServerResponse</code> | An http.ServerResponse object. |
-
-**Example**  
-```js
-coreroute.all('/api/items', (req, res) => {  // Handle request for any HTTP method to /api/items});
-```
-<a name="CoreRoute+serveStaticFiles"></a>
-
-### coreRoute.serveStaticFiles(folder)
-Enables serving static files from a specified folder.<br>When enabled, if a requested path does not match any defined API routes,<br>the server will attempt to serve a file from the static folder.<br><br>
-
-**Kind**: instance method of [<code>CoreRoute</code>](#CoreRoute)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| folder | <code>string</code> | The path to the folder containing static files (e.g., './public'). |
-
-**Example**  
-```js
-coreroute.serveStaticFiles('./public'); // Serve static files from the 'public' directory
-```
-<a name="CoreRoute+listen"></a>
-
-### coreRoute.listen(port, [callback])
-Starts the HTTP server and begins listening for incoming requests on the specified port.<br><br>
-
-**Kind**: instance method of [<code>CoreRoute</code>](#CoreRoute)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| port | <code>number</code> | The port number to listen on (e.g., 80, 3000). |
-| [callback] | <code>function</code> | An optional callback function that will be executed once the server starts listening.                            This is useful for logging or performing setup tasks after the server is running. |
-
-**Example**  
-```js
-coreroute.listen(3000, () => {  console.log('Server listening on port 3000');});
-```
-<a name="CoreRoute+listen"></a>
-
-### coreRoute.listen(port, [options], [callback])
-Starts the HTTP or HTTPS server and begins listening for incoming requests on the specified port.<br>If `options` are provided, an HTTPS server will be created. Otherwise, an HTTP server will be created.<br><br>
-
-**Kind**: instance method of [<code>CoreRoute</code>](#CoreRoute)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| port | <code>number</code> | The port number to listen on (e.g., 80, 443, 3000). |
-| [options] | <code>object</code> | Optional HTTPS options object. If provided, an HTTPS server will be created.                           This object should contain configuration for HTTPS.                           See [https://nodejs.org/api/https.html#httpscreateserveroptions-requestlistener](https://nodejs.org/api/https.html#httpscreateserveroptions-requestlistener) for all available options.                           Example shows minimal required properties. |
-| [options.key] | <code>string</code> \| <code>Buffer</code> | Private key for SSL/TLS. Path to private key file or the key itself as a Buffer. |
-| [options.cert] | <code>string</code> \| <code>Buffer</code> | Public x509 certificate for SSL/TLS. Path to certificate file or the certificate itself as a Buffer. |
-| [callback] | <code>function</code> | An optional callback function executed once the server starts listening. |
-
-**Example** *(Start an HTTP server)*  
-```js
-coreroute.listen(3000, () => {
-  console.log('HTTP server listening on port 3000');
+router.listen(3000, () => {
+    console.log('Server listening on port 3000');
 });
 ```
-**Example** *(Start an HTTPS server)*  
-```js
-const httpsOptions = {
-  key: fs.readFileSync('./ssl/privateKey.pem'),
-  cert: fs.readFileSync('./ssl/certificate.pem')
-};
-coreroute.listen(443, httpsOptions, () => {
-  console.log('HTTPS server listening on port 443');
+
+### Javascript Example
+```javascript
+import { CoreRoute } from 'coreroute';
+
+const router = new CoreRoute();
+
+router.get('/api/hello', (req, res) => {
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end('Hello World from CoreRoute!');
+});
+
+router.serveStaticFiles('./public'); // Serve static files from the 'public' folder
+
+router.listen(3000, () => {
+    console.log('Server listening on port 3000');
 });
 ```
+## Documentation
+
+For detailed API documentation, please refer to the generated documentation in the [**docs**](./docs) folder of this npm package after installation. You can find information about all classes, methods, and types available in CoreRoute within the documentation.
+
+## License
+
+This project is licensed under the [GPL-3.0-or-later License](https://spdx.org/licenses/GPL-3.0-or-later.html) - see the [LICENSE](_media/LICENSE) file for details.
+
+## Author
+
+**Mames Christophe**

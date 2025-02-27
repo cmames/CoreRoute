@@ -6,7 +6,7 @@
 
 # Class: CoreRoute
 
-Defined in: coreroute.ts:29
+Defined in: [coreroute.ts:29](https://github.com/cmames/CoreRoute/blob/0755d3477cacf0b1e23897620df69c2db6eaea6d/src/coreroute.ts#L29)
 
 ## Constructors
 
@@ -14,7 +14,7 @@ Defined in: coreroute.ts:29
 
 > **new CoreRoute**(): [`CoreRoute`](CoreRoute.md)
 
-Defined in: coreroute.ts:44
+Defined in: [coreroute.ts:44](https://github.com/cmames/CoreRoute/blob/0755d3477cacf0b1e23897620df69c2db6eaea6d/src/coreroute.ts#L44)
 
 Constructor for the CoreRoute class.<br>
 Initializes route storage and server settings.<br>
@@ -29,7 +29,7 @@ Initializes route storage and server settings.<br>
 
 > **all**(`route`, `callback`): `void`
 
-Defined in: coreroute.ts:146
+Defined in: [coreroute.ts:146](https://github.com/cmames/CoreRoute/blob/0755d3477cacf0b1e23897620df69c2db6eaea6d/src/coreroute.ts#L146)
 
 Defines a callback function for handling requests for ALL HTTP methods to a specific route.<br>
 This is useful for implementing route handlers that should respond to any type of HTTP request.<br>
@@ -68,7 +68,7 @@ coreroute.all('/api/items', (req, res) => {
 
 > **delete**(`route`, `callback`): `void`
 
-Defined in: coreroute.ts:115
+Defined in: [coreroute.ts:115](https://github.com/cmames/CoreRoute/blob/0755d3477cacf0b1e23897620df69c2db6eaea6d/src/coreroute.ts#L115)
 
 Defines a callback function for handling DELETE requests to a specific route.<br>
 <br>
@@ -106,7 +106,7 @@ coreroute.delete('/api/items/:id', (req, res) => {
 
 > **get**(`route`, `callback`): `void`
 
-Defined in: coreroute.ts:70
+Defined in: [coreroute.ts:70](https://github.com/cmames/CoreRoute/blob/0755d3477cacf0b1e23897620df69c2db6eaea6d/src/coreroute.ts#L70)
 
 Defines a callback function for handling GET requests to a specific route.<br>
 <br>
@@ -143,13 +143,17 @@ coreroute.get('/api/users', (req, res) => {
 
 ### listen()
 
-> **listen**(`port`, `options`?, `callback`?): `void`
+> **listen**(`port`, `optionsOrCallback`?, `callback`?): `void`
 
-Defined in: coreroute.ts:196
+Defined in: [coreroute.ts:207](https://github.com/cmames/CoreRoute/blob/0755d3477cacf0b1e23897620df69c2db6eaea6d/src/coreroute.ts#L207)
 
-Starts the HTTP or HTTPS server and begins listening for incoming requests on the specified port.<br>
-If `options` are provided, an HTTPS server will be created. Otherwise, an HTTP server will be created.<br>
+Starts the server on the specified port, optionally with HTTPS.<br>
+This method can start either an HTTP server or an HTTPS server based on the arguments provided.<br>
 <br>
+**Overloads:**
+
+1.  `listen(port: number, callback?: () => void): void` - Starts an HTTP server.
+2.  `listen(port: number, options?: https.ServerOptions, callback?: () => void): void` - Starts an HTTPS server if `options` are provided, otherwise defaults to HTTP.
 
 #### Parameters
 
@@ -157,43 +161,48 @@ If `options` are provided, an HTTPS server will be created. Otherwise, an HTTP s
 
 `number`
 
-The port number to listen on (e.g., 80, 443, 3000).
+The port number on which the server should listen.
 
-##### options?
+##### optionsOrCallback?
 
-`ServerOptions`\<*typeof* `IncomingMessage`, *typeof* `ServerResponse`\>
+Either HTTPS server options or a callback function.
+                                                   If it's an object, it's treated as HTTPS options.
+                                                   If it's a function, it's treated as the callback for HTTP server start.
+                                                   If omitted, no callback is executed after server starts.
 
-Optional HTTPS options object. If provided, an HTTPS server will be created.
-                           This object should contain configuration for HTTPS.
-                           See [https://nodejs.org/api/https.html#httpscreateserveroptions-requestlistener](https://nodejs.org/api/https.html#httpscreateserveroptions-requestlistener) for all available options.
-                           Example shows minimal required properties.
+`ServerOptions`\<*typeof* `IncomingMessage`, *typeof* `ServerResponse`\> | () => `void`
 
 ##### callback?
 
 () => `void`
 
-An optional callback function executed once the server starts listening.
+An optional callback function to be executed once the server starts listening.
+                                This is used only when the second argument is HTTPS options.
 
 #### Returns
 
 `void`
 
-#### Examples
+#### Example
 
-```ts
-coreroute.listen(3000, () => {
-   console.log('HTTP server listening on port 3000');
+```typescript
+// Start HTTP server with a callback
+router.listen(3000, () => {
+  console.log('HTTP server listening on port 3000');
 });
-```
 
-```ts
-const httpsOptions = {
-   key: fs.readFileSync('./ssl/privateKey.pem'),
-   cert: fs.readFileSync('./ssl/certificate.pem')
-};
-coreroute.listen(443, httpsOptions, () => {
-   console.log('HTTPS server listening on port 443');
+// Start HTTPS server with options and a callback
+const httpsOptions = { ... };
+router.listen(443, httpsOptions, () => {
+  console.log('HTTPS server listening on port 443');
 });
+
+// Start HTTP server without a callback
+router.listen(8080);
+
+// Start HTTPS server with options but without a callback
+const httpsOptionsNoCallback = { ... };
+router.listen(8443, httpsOptionsNoCallback);
 ```
 
 ***
@@ -202,7 +211,7 @@ coreroute.listen(443, httpsOptions, () => {
 
 > **patch**(`route`, `callback`): `void`
 
-Defined in: coreroute.ts:130
+Defined in: [coreroute.ts:130](https://github.com/cmames/CoreRoute/blob/0755d3477cacf0b1e23897620df69c2db6eaea6d/src/coreroute.ts#L130)
 
 Defines a callback function for handling PATCH requests to a specific route.<br>
 <br>
@@ -240,7 +249,7 @@ coreroute.patch('/api/items/:id', (req, res) => {
 
 > **post**(`route`, `callback`): `void`
 
-Defined in: coreroute.ts:100
+Defined in: [coreroute.ts:100](https://github.com/cmames/CoreRoute/blob/0755d3477cacf0b1e23897620df69c2db6eaea6d/src/coreroute.ts#L100)
 
 Defines a callback function for handling POST requests to a specific route.<br>
 <br>
@@ -278,7 +287,7 @@ coreroute.post('/api/items', (req, res) => {
 
 > **put**(`route`, `callback`): `void`
 
-Defined in: coreroute.ts:85
+Defined in: [coreroute.ts:85](https://github.com/cmames/CoreRoute/blob/0755d3477cacf0b1e23897620df69c2db6eaea6d/src/coreroute.ts#L85)
 
 Defines a callback function for handling PUT requests to a specific route.<br>
 <br>
@@ -316,7 +325,7 @@ coreroute.put('/api/items/:id', (req, res) => {
 
 > **serveStaticFiles**(`folder`): `void`
 
-Defined in: coreroute.ts:164
+Defined in: [coreroute.ts:164](https://github.com/cmames/CoreRoute/blob/0755d3477cacf0b1e23897620df69c2db6eaea6d/src/coreroute.ts#L164)
 
 Enables serving static files from a specified folder.<br>
 When enabled, if a requested path does not match any defined API routes,<br>
