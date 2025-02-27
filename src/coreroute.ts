@@ -231,15 +231,7 @@ export class CoreRoute {
             console.error('CoreRoute - Server startup error:', error.message);
         });
 
-        console.log("Inside server.listen call");
-        server.listen(port, () => {
-            console.log('Listen callback - port:', port);
-            if (listenCallback) { // Utiliser listenCallback (le callback déterminé dynamiquement)
-                listenCallback();
-            } else {
-                console.log("No listen callback provided or executed."); // Message plus informatif
-            }
-        });
+        server.listen(port, listenCallback);
     }
 
 

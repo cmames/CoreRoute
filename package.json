@@ -1,13 +1,16 @@
 {
   "name": "coreroute",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A simplified HTTP Router class for Node.js applications",
   "main": "dist/coreroute.js",
   "types": "./dist/coreroute.d.ts",
   "scripts": {
+    ".xscripts": "chmod +x .github/scripts/patch.sh && chmod +x .github/scripts/minor.sh && chmod +x .github/scripts/major.sh",
     "doc": "typedoc --plugin typedoc-plugin-markdown src/coreroute.ts",
-    "readme": "npx jsdoc2md src/coreroute.ts > README.md",
-    "build": "npx tsc"
+    "build": "npx tsc",
+    "patch": "npm run build && npm run .xscripts && .github/scripts/patch.sh",
+    "minor": "npm run build && npm run .xscripts && .github/scripts/minor.sh",
+    "major": "npm run build && npm run .xscripts && .github/scripts/major.sh"
   },
   "repository": {
     "type": "git",

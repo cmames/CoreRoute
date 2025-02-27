@@ -1,0 +1,24 @@
+name: Création de Tag de Version au Push
+
+on:
+  push:
+    branches:
+      - main # Branche sur laquelle le workflow se déclenche (ajustez si besoin)
+
+jobs:
+  tagging:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3 # Récupérer le code du dépôt
+      - name: Lire le numéro de version depuis package.json
+        id: get_version
+        run: |
+          VERSION=$(jq -r '.version' package.json)
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+      - name: Créer et Pousser le tag Git
+        run: |
+          VERSION="${{ steps.get_version.outputs.VERSION }}"
+          git tag "v${VERSION}"
+          git push origin --tags
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

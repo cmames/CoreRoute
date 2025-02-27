@@ -22,3 +22,6 @@ coverage/
 
 #  Fichiers générés par l'éditeur (ex: VS Code)
 .vscode/
+
+#  Script local pour github
+.github/scripts/
