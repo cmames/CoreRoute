@@ -179,11 +179,6 @@ export class CoreRoute {
      *                           @param {string|Buffer} [options.cert] - Public x509 certificate for SSL/TLS. Path to certificate file or the certificate itself as a Buffer.
      * @param {function} [callback] An optional callback function executed once the server starts listening.
      *
-     * @example <caption>Start an HTTP server</caption>
-     * coreroute.listen(3000, () => {
-     *   console.log('HTTP server listening on port 3000');
-     * });
-     *
      * @example <caption>Start an HTTPS server</caption>
      * const httpsOptions = {
      *   key: fs.readFileSync('./ssl/privateKey.pem'),
@@ -197,12 +192,16 @@ export class CoreRoute {
         let server: http.Server | https.Server; // On type server comme pouvant être http.Server OU https.Server
         if (options && options.key && options.cert) { 
             server = https.createServer(options, this.#dispatch.bind(this));
-            console.log("Démarrage du serveur HTTPS..."); 
+            console.log("Starting HTTPS server..."); 
         } else {
             server = http.createServer(this.#dispatch.bind(this));
-            console.log("Démarrage du serveur HTTP...");
+            console.log("Starting HTTPS server...");
         }
         this.#serverInstance = server;
+		this.#serverInstance.on('error', (error: Error) => {
+			console.error('CoreRoute - Server startup error : ', error.message); 
+		});
+
         server.listen(port, callback);
     }
 
