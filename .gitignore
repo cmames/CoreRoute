@@ -3,9 +3,6 @@ node_modules/
 package-lock.json
 npm-debug.log
 
-# Dossier de compilation TypeScript
-dist/
-
 # Fichiers de logs et temporaires
 *.log
 *.tmp
