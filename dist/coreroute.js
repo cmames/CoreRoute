@@ -218,7 +218,6 @@ export class CoreRoute {
      * @private
      * @param {http.IncomingMessage} req The incoming HTTP request object.
      * @param {http.ServerResponse} res The HTTP server response object.
-     * @returns {boolean} Returns `true` if a route or static file was served, `false` otherwise.
      */
     #dispatch(req, res) {
         let tab = null; // On laisse tab en 'any' pour l'instant
@@ -248,12 +247,10 @@ export class CoreRoute {
             catch (error) {
                 this.#errorHandler(res, 500, "Internal Server Error");
             }
-            return true;
         }
         else if (this.#isStaticServingEnabled) {
-            return this.#staticHandler(req, res);
+            this.#staticHandler(req, res);
         }
-        return false;
     }
     /**
      * Handles requests for static files.<br>
@@ -263,28 +260,57 @@ export class CoreRoute {
      * @private
      * @param {http.IncomingMessage} req The incoming HTTP request object.
      * @param {http.ServerResponse} res The HTTP server response object.
-     * @returns {boolean} Returns `true` if the static file was served, `false` if the file was not found.
      */
     #staticHandler(req, res) {
         const requestUrl = req.url || '';
-        const filePath = path.join(this.#staticFolder, requestUrl);
-        fs.access(filePath, fs.constants.R_OK, (err) => {
-            if (!err) {
+        let filePath = path.join(this.#staticFolder, requestUrl);
+        fs.stat(filePath, (statErr, stats) => {
+            if (!statErr && stats.isDirectory()) { // Si c'est un dossier
+                const indexPath = path.join(filePath, 'index.html'); // Construisez le chemin vers index.html dans ce dossier
+                fs.access(indexPath, fs.constants.R_OK, (indexAccessErr) => {
+                    if (!indexAccessErr) { // Si index.html existe
+                        filePath = indexPath; // Servez index.html à la place du dossier
+                    }
+                    else {
+                        // Si index.html n'existe pas dans le dossier, vous pouvez décider de faire autre chose,
+                        // par exemple afficher une liste du contenu du dossier (ce qui est plus complexe à implémenter),
+                        // ou simplement retourner une erreur 404 (comportement simple par défaut).
+                        // Pour l'instant, on va retourner 404 si index.html n'est pas trouvé.
+                        this.#errorHandler(res, 404, "File Not Found");
+                    }
+                    // Continuez à servir le fichier (qui est maintenant soit le fichier index.html trouvé, soit toujours le fichier initialement demandé s'il ne s'agissait pas d'un dossier)
+                    this.#serveFile(filePath, req, res); // Extraction de la logique de service de fichier dans une fonction séparée (voir étape suivante)
+                });
+            }
+            else { // Si ce n'est pas un dossier, ou si fs.stat a retourné une erreur (fichier non trouvé, etc.), on essaie de servir le chemin tel quel (comportement actuel).
+                this.#serveFile(filePath, req, res); // Utilisez la fonction #serveFile pour servir le fichier (nouvelle fonction, voir ci-dessous)
+            }
+        });
+    }
+    ;
+    /**
+     * Serve a file<br>
+     * If the file is found, it is streamed to the response. If not found, a 404 error is sent.<br>
+     *<br>
+     * @private
+     * @param {string} filePath The path an file name.
+     * @param {http.IncomingMessage} req The incoming HTTP request object.
+     * @param {http.ServerResponse} res The HTTP server response object.
+     */
+    #serveFile(filePath, req, res) {
+        fs.access(filePath, fs.constants.R_OK, (accessErr) => {
+            if (!accessErr) {
                 const mimeType = this.#getMimeType(filePath);
                 res.writeHead(200, { "Content-Type": mimeType });
                 const stream = fs.createReadStream(filePath);
                 stream.on('error', this.#errorHandler.bind(this, res, 500, "Internal Server Error during static file service"));
                 stream.pipe(res);
-                return true;
             }
             else {
                 this.#errorHandler(res, 404, "File Not Found");
-                return false;
             }
         });
-        return false;
     }
-    ;
     /**
      * Determines the MIME type of a file based on its extension.<br>
      * Uses a predefined list of common MIME types. If the extension is not recognized,<br>
@@ -299,20 +325,71 @@ export class CoreRoute {
     #getMimeType(file) {
         const extension = path.extname(file).toLowerCase();
         const mimeTypes = {
-            aac: "audio/aac", abw: "application/x-abiword", arc: "application/octet-stream", avi: "video/x-msvideo", azw: "application/vnd.amazon.ebook",
-            bin: "application/octet-stream", bmp: "image/bmp", bz: "application/x-bzip", bz2: "application/x-bzip2", csh: "application/x-csh",
-            css: "text/css", csv: "text/csv", doc: "application/msword", docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            eot: "application/vnd.ms-fontobject", epub: "application/epub+zip", gif: "image/gif", htm: "text/html", ico: "image/x-icon",
-            ics: "text/calendar", jar: "application/java-archive", jpg: "image/jpeg", jpeg: "image/jpeg", js: "application/javascript",
-            json: "application/json", mid: "audio/midi", mpeg: "video/mpeg", mpkg: "application/vnd.apple.installer+xml", odp: "application/vnd.oasis.opendocument.presentation",
-            ods: "application/vnd.oasis.opendocument.spreadsheet", odt: "application/vnd.oasis.opendocument.text", oga: "audio/ogg", ogv: "video/ogg", ogx: "application/ogg",
-            otf: "font/otf", png: "image/png", pdf: "application/pdf", ppt: "application/vnd.ms-powerpoint", pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-            rar: "application/x-rar-compressed", rtf: "application/rtf", sh: "application/x-sh", svg: "image/svg+xml", swf: "application/x-shockwave-flash",
-            tar: "application/x-tar", tif: "image/tiff", ts: "application/typescript", ttf: "font/ttf", vsd: "application/vnd.visio",
-            wav: "audio/x-wav", weba: "audio/webm", webm: "video/webm", webp: "image/webp", woff: "font/woff",
-            woff2: "font/woff2", xhtml: "application/xhtml+xml", xls: "application/vnd.ms-excel", xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            xml: "application/xml", xul: "application/vnd.mozilla.xul+xml", zip: "application/zip", "3gp": "audio/3gpp dans le cas où le conteneur ne comprend pas de vidéo",
-            "3g2": "audio/3gpp2 dans le cas où le conteneur ne comprend pas de vidéo", "7z": "application/x-7z-compressed",
+            aac: "audio/aac", // fichier audio AAC
+            abw: "application/x-abiword", // document AbiWord
+            arc: "application/octet-stream", // archive (contenant plusieurs fichiers)
+            avi: "video/x-msvideo", // AVI : Audio Video Interleave
+            azw: "application/vnd.amazon.ebook", // format pour eBook Amazon Kindle
+            bin: "application/octet-stream", // n'importe quelle donnée binaire
+            bmp: "image/bmp", // Images bitmap Windows OS/2
+            bz: "application/x-bzip", // archive BZip
+            bz2: "application/x-bzip2", // archive BZip2
+            csh: "application/x-csh", // script C-Shell
+            css: "text/css", // fichier Cascading Style Sheets (CSS)
+            csv: "text/csv", // fichier Comma-separated values (CSV)
+            doc: "application/msword", // Microsoft Word
+            docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // Microsoft Word (OpenXML)
+            eot: "application/vnd.ms-fontobject", // police MS Embedded OpenType
+            epub: "application/epub+zip", // fichier Electronic publication (EPUB)
+            gif: "image/gif", // fichier Graphics Interchange Format (GIF)
+            htm: "text/html", // .html fichier HyperText Markup Language (HTML)
+            html: "text/html", // .html fichier HyperText Markup Language (HTML)
+            ico: "image/x-icon", // icône
+            ics: "text/calendar", // élément iCalendar
+            jar: "application/java-archive", // archive Java (JAR)
+            jpg: "image/jpeg", // .jpg image JPEG
+            jpeg: "image/jpeg", // .jpg image JPEG
+            js: "application/javascript", // JavaScript (ECMAScript)
+            json: "application/json", // donnée au format JSON
+            mid: "audio/midi", // .midi fichier audio Musical Instrument Digital Interface (MIDI)
+            mpeg: "video/mpeg", // vidéo MPEG
+            mpkg: "application/vnd.apple.installer+xml", // paquet Apple Installer
+            odp: "application/vnd.oasis.opendocument.presentation", // présentation OpenDocument
+            ods: "application/vnd.oasis.opendocument.spreadsheet", // feuille de calcul OpenDocument
+            odt: "application/vnd.oasis.opendocument.text", // document texte OpenDocument
+            oga: "audio/ogg", // fichier audio OGG
+            ogv: "video/ogg", // fichier vidéo OGG
+            ogx: "application/ogg", // OGG
+            otf: "font/otf", // police OpenType
+            png: "image/png", // fichier Portable Network Graphics
+            pdf: "application/pdf", // Adobe Portable Document Format (PDF)
+            ppt: "application/vnd.ms-powerpoint", // présentation Microsoft PowerPoint
+            pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation", // présentation Microsoft PowerPoint (OpenXML)
+            rar: "application/x-rar-compressed", // archive RAR
+            rtf: "application/rtf", // Rich Text Format (RTF)
+            sh: "application/x-sh", // script shell
+            svg: "image/svg+xml", // fichier Scalable Vector Graphics (SVG)
+            swf: "application/x-shockwave-flash", // fichier Small web format (SWF) ou Adobe Flash
+            tar: "application/x-tar", // fichier d'archive Tape Archive (TAR)
+            tif: "image/tiff", // .tiff image au format Tagged Image File Format (TIFF)
+            ts: "application/typescript", // fichier Typescript
+            ttf: "font/ttf", // police TrueType
+            vsd: "application/vnd.visio", // Microsoft Visio
+            wav: "audio/x-wav", // Waveform Audio Format
+            weba: "audio/webm", // fichier audio WEBM
+            webm: "video/webm", // fichier vidéo WEBM
+            webp: "image/webp", // image WEBP
+            woff: "font/woff", // police Web Open Font Format (WOFF)
+            woff2: "font/woff2", // police Web Open Font Format (WOFF)
+            xhtml: "application/xhtml+xml", // XHTML
+            xls: "application/vnd.ms-excel", // Microsoft Excel
+            xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // Microsoft Excel (OpenXML)
+            xml: "application/xml", // XML
+            xul: "application/vnd.mozilla.xul+xml", // XUL
+            zip: "application/zip", // archive ZIP
+            "3gp": "audio/3gpp dans le cas où le conteneur ne comprend pas de vidéo", // conteneur audio/vidéo 3GPP video/3gpp
+            "3g2": "audio/3gpp2 dans le cas où le conteneur ne comprend pas de vidéo", // conteneur audio/vidéo 3GPP2 video/3gpp2
+            "7z": "application/x-7z-compressed", // archive 7-zip
         };
         return mimeTypes[extension] || "application/octet-stream";
     }
