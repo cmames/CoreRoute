@@ -1,9 +1,10 @@
 {
   "name": "coreroute",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "A simplified HTTP Router class for Node.js applications",
   "main": "dist/coreroute.js",
   "types": "dist/coreroute.d.ts",
+  "type": "module",
   "scripts": {
     ".xscripts": "chmod +x .github/scripts/patch.sh && chmod +x .github/scripts/minor.sh && chmod +x .github/scripts/major.sh",
     "doc": "typedoc --plugin typedoc-plugin-markdown src/coreroute.ts",
