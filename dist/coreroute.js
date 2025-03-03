@@ -323,7 +323,7 @@ export class CoreRoute {
      * @see {@link https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types} for common MIME types.
      */
     #getMimeType(file) {
-        const extension = path.extname(file).toLowerCase();
+        const extension = path.extname(file).toLowerCase().substring(1);
         const mimeTypes = {
             aac: "audio/aac", // fichier audio AAC
             abw: "application/x-abiword", // document AbiWord
