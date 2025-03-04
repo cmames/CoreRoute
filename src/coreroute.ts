@@ -422,4 +422,30 @@ export class CoreRoute {
         res.writeHead(httpCode, { 'Content-Type': 'text/plain' });
         res.end(message);
     }
+
+    /**
+     * Utility function to convert a route pattern to a regular expression.
+     * It also extracts the parameter names from the route.
+     *
+     * @private
+     * @param {string} routePattern The route pattern (e.g., '/users/:id').
+     * @returns {{ regex: RegExp, paramNames: string[] }} An object containing the regex and an array of parameter names.
+     */
+    #pathToRegex(routePattern: string): { regex: RegExp, paramNames: string[] } {
+        const paramNames: string[] = [];
+        const escapedRoutePattern = routePattern.replace(/[\/\\]/g, '\/');
+        const regexString = escapedRoutePattern.split('/').map(segment => {
+            if (segment.startsWith(':')) {
+                const paramName = segment.substring(1);
+                paramNames.push(paramName);
+                return `(?<${paramName}>[^\\/]+)`;
+            }
+            else {
+                return segment ? segment.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') : ''; 
+            }
+        }).filter(segmentRegex => segmentRegex !== '').join('/');
+
+        const regex = new RegExp(`^${regexString}$`);
+        return { regex, paramNames };
+    }
 }
