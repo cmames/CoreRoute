@@ -28,12 +28,12 @@ export class CoreRoute {
      * Initializes route storage and server settings.<br>
      */
     constructor() {
-        this.#gets = {};
-        this.#puts = {};
-        this.#posts = {};
-        this.#deletes = {};
-        this.#patchs = {};
-        this.#alls = {};
+        this.#gets = [];
+        this.#puts = [];
+        this.#posts = [];
+        this.#deletes = [];
+        this.#patchs = [];
+        this.#alls = [];
         this.#serverInstance = null;
         this.#staticFolder = '';
         this.#isStaticServingEnabled = false;
@@ -52,7 +52,15 @@ export class CoreRoute {
      *   res.end(JSON.stringify({ message: 'User data' }));
      * });
      */
-    get(route, callback) { this.#gets[route] = callback; }
+    get(routePattern, callback) {
+        const { regex, paramNames } = this.#pathToRegex(routePattern);
+        this.#gets.push({
+            routePattern: routePattern,
+            regex: regex,
+            paramNames: paramNames,
+            handler: callback
+        });
+    }
     /**
      * Defines a callback function for handling PUT requests to a specific route.<br>
      *<br>
@@ -66,7 +74,15 @@ export class CoreRoute {
      *   // Handle update item logic
      * });
      */
-    put(route, callback) { this.#puts[route] = callback; }
+    put(routePattern, callback) {
+        const { regex, paramNames } = this.#pathToRegex(routePattern);
+        this.#puts.push({
+            routePattern: routePattern,
+            regex: regex,
+            paramNames: paramNames,
+            handler: callback
+        });
+    }
     /**
      * Defines a callback function for handling POST requests to a specific route.<br>
      *<br>
@@ -80,7 +96,15 @@ export class CoreRoute {
      *   // Handle create item logic
      * });
      */
-    post(route, callback) { this.#posts[route] = callback; }
+    post(routePattern, callback) {
+        const { regex, paramNames } = this.#pathToRegex(routePattern);
+        this.#posts.push({
+            routePattern: routePattern,
+            regex: regex,
+            paramNames: paramNames,
+            handler: callback
+        });
+    }
     /**
      * Defines a callback function for handling DELETE requests to a specific route.<br>
      *<br>
@@ -94,7 +118,15 @@ export class CoreRoute {
      *   // Handle delete item logic
      * });
      */
-    delete(route, callback) { this.#deletes[route] = callback; }
+    delete(routePattern, callback) {
+        const { regex, paramNames } = this.#pathToRegex(routePattern);
+        this.#deletes.push({
+            routePattern: routePattern,
+            regex: regex,
+            paramNames: paramNames,
+            handler: callback
+        });
+    }
     /**
      * Defines a callback function for handling PATCH requests to a specific route.<br>
      *<br>
@@ -108,7 +140,15 @@ export class CoreRoute {
      *   // Handle partial update item logic
      * });
      */
-    patch(route, callback) { this.#patchs[route] = callback; }
+    patch(routePattern, callback) {
+        const { regex, paramNames } = this.#pathToRegex(routePattern);
+        this.#patchs.push({
+            routePattern: routePattern,
+            regex: regex,
+            paramNames: paramNames,
+            handler: callback
+        });
+    }
     /**
      * Defines a callback function for handling requests for ALL HTTP methods to a specific route.<br>
      * This is useful for implementing route handlers that should respond to any type of HTTP request.<br>
@@ -123,13 +163,12 @@ export class CoreRoute {
      *   // Handle request for any HTTP method to /api/items
      * });
      */
-    all(route, callback) {
-        this.#alls[route] = callback;
-        this.#gets[route] = callback;
-        this.#puts[route] = callback;
-        this.#posts[route] = callback;
-        this.#deletes[route] = callback;
-        this.#patchs[route] = callback;
+    all(routePattern, callback) {
+        this.get(routePattern, callback);
+        this.put(routePattern, callback);
+        this.post(routePattern, callback);
+        this.delete(routePattern, callback);
+        this.patch(routePattern, callback);
     }
     /**
      * Enables serving static files from a specified folder.<br>
@@ -220,36 +259,54 @@ export class CoreRoute {
      * @param {http.ServerResponse} res The HTTP server response object.
      */
     #dispatch(req, res) {
-        let tab = null; // On laisse tab en 'any' pour l'instant
+        let routesArray = null; // 'routesArray' pour être plus clair que 'tab'
         switch (req.method) {
             case "GET":
-                tab = this.#gets;
+                routesArray = this.#gets;
                 break;
             case "PUT":
-                tab = this.#puts;
+                routesArray = this.#puts;
                 break;
             case "POST":
-                tab = this.#posts;
+                routesArray = this.#posts;
                 break;
             case "DELETE":
-                tab = this.#deletes;
+                routesArray = this.#deletes;
                 break;
             case "PATCH":
-                tab = this.#patchs;
+                routesArray = this.#patchs;
                 break;
         }
         const requestUrl = req.url || '/';
-        let url = new URL(requestUrl, `http://${req.headers.host}`);
-        if (tab && tab[url.pathname]) {
-            try {
-                tab[url.pathname](req, res);
-            }
-            catch (error) {
-                this.#errorHandler(res, 500, "Internal Server Error");
+        const url = new URL(requestUrl, `http://${req.headers.host}`);
+        if (routesArray) {
+            for (const route of routesArray) {
+                const routeRegexResult = route.regex.exec(url.pathname);
+                if (routeRegexResult) {
+                    const params = {};
+                    if (route.paramNames && routeRegexResult.groups) {
+                        for (const paramName of route.paramNames) {
+                            if (routeRegexResult.groups[paramName]) {
+                                params[paramName] = routeRegexResult.groups[paramName];
+                            }
+                        }
+                    }
+                    req.params = params; // Ajout de la propriété req.params à l'objet requête
+                    try {
+                        route.handler(req, res); // Appel du handler de la route
+                    }
+                    catch (error) {
+                        this.#errorHandler(res, 500, "Internal Server Error");
+                    }
+                    return; // Arrêt après avoir trouvé et exécuté une route correspondante
+                }
             }
         }
-        else if (this.#isStaticServingEnabled) {
+        if (this.#isStaticServingEnabled) {
             this.#staticHandler(req, res);
+        }
+        else {
+            this.#errorHandler(res, 404, "Route Not Found"); // 404 si pas de route API correspondante et pas de fichiers statiques
         }
     }
     /**
@@ -406,5 +463,29 @@ export class CoreRoute {
     #errorHandler(res, httpCode, message) {
         res.writeHead(httpCode, { 'Content-Type': 'text/plain' });
         res.end(message);
+    }
+    /**
+     * Utility function to convert a route pattern to a regular expression.
+     * It also extracts the parameter names from the route.
+     *
+     * @private
+     * @param {string} routePattern The route pattern (e.g., '/users/:id').
+     * @returns {{ regex: RegExp, paramNames: string[] }} An object containing the regex and an array of parameter names.
+     */
+    #pathToRegex(routePattern) {
+        const paramNames = [];
+        const escapedRoutePattern = routePattern.replace(/[\/\\]/g, '\/');
+        const regexString = escapedRoutePattern.split('/').map(segment => {
+            if (segment.startsWith(':')) {
+                const paramName = segment.substring(1);
+                paramNames.push(paramName);
+                return `(?<${paramName}>[^\\/]+)`;
+            }
+            else {
+                return segment ? segment.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') : '';
+            }
+        }).filter(segmentRegex => segmentRegex !== '').join('/');
+        const regex = new RegExp(`^${regexString}$`);
+        return { regex, paramNames };
     }
 }

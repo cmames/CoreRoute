@@ -42,7 +42,7 @@ export declare class CoreRoute {
      *   res.end(JSON.stringify({ message: 'User data' }));
      * });
      */
-    get(route: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void): void;
+    get(routePattern: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void): void;
     /**
      * Defines a callback function for handling PUT requests to a specific route.<br>
      *<br>
@@ -56,7 +56,7 @@ export declare class CoreRoute {
      *   // Handle update item logic
      * });
      */
-    put(route: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void): void;
+    put(routePattern: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void): void;
     /**
      * Defines a callback function for handling POST requests to a specific route.<br>
      *<br>
@@ -70,7 +70,7 @@ export declare class CoreRoute {
      *   // Handle create item logic
      * });
      */
-    post(route: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void): void;
+    post(routePattern: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void): void;
     /**
      * Defines a callback function for handling DELETE requests to a specific route.<br>
      *<br>
@@ -84,7 +84,7 @@ export declare class CoreRoute {
      *   // Handle delete item logic
      * });
      */
-    delete(route: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void): void;
+    delete(routePattern: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void): void;
     /**
      * Defines a callback function for handling PATCH requests to a specific route.<br>
      *<br>
@@ -98,7 +98,7 @@ export declare class CoreRoute {
      *   // Handle partial update item logic
      * });
      */
-    patch(route: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void): void;
+    patch(routePattern: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void): void;
     /**
      * Defines a callback function for handling requests for ALL HTTP methods to a specific route.<br>
      * This is useful for implementing route handlers that should respond to any type of HTTP request.<br>
@@ -113,7 +113,7 @@ export declare class CoreRoute {
      *   // Handle request for any HTTP method to /api/items
      * });
      */
-    all(route: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void): void;
+    all(routePattern: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void): void;
     /**
      * Enables serving static files from a specified folder.<br>
      * When enabled, if a requested path does not match any defined API routes,<br>
