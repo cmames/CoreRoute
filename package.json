@@ -1,6 +1,6 @@
 {
   "name": "coreroute",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "A simplified HTTP Router class for Node.js applications",
   "main": "dist/coreroute.js",
   "types": "dist/coreroute.d.ts",
