@@ -2,7 +2,7 @@
 
 **/!\ WARNING : beta version still in progress, please wait for v1.1.0**
 
-[![npm version](https://badge.fury.io/js/coreroute.svg)](https://badge.fury.io/js/coreroute.svg) [![License: GPL-3.0-or-later](https://img.shields.io/badge/License-GPL--3.0--or--later-blueviolet)](https://spdx.org/licenses/GPL-3.0-or-later.html)
+[![npm version](https://badge.fury.io/js/coreroute.svg)](https://badge.fury.io/js/coreroute) [![License: GPL-3.0-or-later](https://img.shields.io/badge/License-GPL--3.0--or--later-blueviolet)](https://spdx.org/licenses/GPL-3.0-or-later.html)
 
 **A Simplified HTTP Router for Node.js Applications**
 
