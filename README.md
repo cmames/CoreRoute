@@ -7,7 +7,6 @@
 ![GitHub top language](https://img.shields.io/github/languages/top/cmames/coreroute)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/cmames/coreroute)
 
-
 **A Simplified HTTP Router for Node.js Applications**
 
 CoreRoute is a lightweight and straightforward HTTP router class designed for Node.js applications. It provides a streamlined approach to defining routes for various HTTP methods and serving static files, making it an ideal choice for simpler projects where the full complexity of frameworks like ExpressJS might be overkill.
