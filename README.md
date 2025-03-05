@@ -1,7 +1,7 @@
 # CoreRoute
 
-[![npm version](https://badge.fury.io/js/coreroute.svg?cachebuster=2](https://badge.fury.io/js/coreroute.svg)
-[![License: GPL-3.0-or-later](https://img.shields.io/badge/License-GPL--3.0--or--later-blueviolet)](https://spdx.org/licenses/GPL-3.0-or-later.html)
+![NPM Version](https://img.shields.io/npm/v/coreroute)
+![GitHub License](https://img.shields.io/github/license/cmames/coreroute)
 ![GitHub last commit](https://img.shields.io/github/last-commit/cmames/coreroute)
 
 ![GitHub top language](https://img.shields.io/github/languages/top/cmames/coreroute)
