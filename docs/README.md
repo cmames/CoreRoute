@@ -4,8 +4,8 @@
 
 # CoreRoute
 
-[![npm version](https://badge.fury.io/js/coreroute.svg?kill_cache=1)](https://badge.fury.io/js/coreroute.svg)
-[![License: GPL-3.0-or-later](https://img.shields.io/badge/License-GPL--3.0--or--later-blueviolet)](https://spdx.org/licenses/GPL-3.0-or-later.html)
+![NPM Version](https://img.shields.io/npm/v/coreroute)
+![GitHub License](https://img.shields.io/github/license/cmames/coreroute)
 ![GitHub last commit](https://img.shields.io/github/last-commit/cmames/coreroute)
 
 ![GitHub top language](https://img.shields.io/github/languages/top/cmames/coreroute)
@@ -130,13 +130,6 @@ setTimeout(() => {
 }, 10000); // Close server after 10 seconds (example)
 ```
 
-## Building from Source
-**for developpers**
-
-If you want to clone the CoreRoute repository and build it yourself from source, follow these steps:
-
-After following these steps, you will have a local build of CoreRoute, and you can start experimenting with it, running tests, or modifying the code.
-
 ## For Developers - Building from Source
 
 **Warning: These instructions are primarily for developers who wish to contribute to CoreRoute or modify the library's source code. If you simply want to use CoreRoute in your project, please refer to the [Installation](#installation) section above to install the published package from npm.**
@@ -146,10 +139,9 @@ If you are a developer and want to build CoreRoute from source, follow these ste
 1.  **Clone the repository:**
 
     ```bash
-    git clone [URL_DE_VOTRE_REPO_GIT]
+    git clone https://github.com/cmames/CoreRoute.git
     cd coreroute
     ```
-    *(Replace `[URL_DE_VOTRE_REPO_GIT]` with the actual URL of your Git repository)*
 
 2.  **Install dependencies:**
 
@@ -161,9 +153,31 @@ If you are a developer and want to build CoreRoute from source, follow these ste
     yarn install
     ```
 
-3.  **Build the TypeScript code:**
+3.  **Lint the code with ESLint (before build):**
 
-    To compile the TypeScript source code into JavaScript, run the build script defined in `package.json`:
+    CoreRoute includes ESLint for code linting and maintaining code quality. **Before building, it's recommended to run ESLint to catch and fix any linting issues.** You can run the linting script using:
+
+    ```bash
+    npm run lint
+    # or if you use yarn:
+    yarn run lint
+    ```
+    This command will execute ESLint with the project's configuration.  **The build process also includes linting, ensuring that only code passing ESLint checks is built.**
+
+4.  **Run tests (recommended before build):**
+
+    CoreRoute is equipped with unit tests to ensure the stability and correctness of the library. **It's highly recommended to run the tests before building to verify that all functionalities are working as expected.** Use the following command to execute the test suite:
+
+    ```bash
+    npm test
+    # or if you use yarn:
+    yarn test
+    ```
+    This command will run the Jest test runner and execute all tests defined in the `test` directory. **Ensure all tests pass before proceeding with the build.**
+
+5.  **Build the TypeScript code:**
+
+    Once you have passed the linting and tests, you can compile the TypeScript source code into JavaScript. Run the build script defined in `package.json`:
 
     ```bash
     npm run build
@@ -171,9 +185,9 @@ If you are a developer and want to build CoreRoute from source, follow these ste
     yarn run build
     ```
 
-    This command will typically use the TypeScript compiler (`tsc`) to generate the JavaScript files in the `dist` directory.
+    This command will typically use the TypeScript compiler (`tsc`) to generate the JavaScript files in the `dist` directory.  **Note that the build script typically includes a linting step before compilation.**
 
-4.  **Generate documentation (optional):**
+6.  **Generate documentation (optional):**
 
     To generate the API documentation in Markdown format, you can use the `docs` script:
 
@@ -182,7 +196,7 @@ If you are a developer and want to build CoreRoute from source, follow these ste
     ```
     This will generate the documentation files in the `docs` directory. Make sure you have the `typedoc` and `typedoc-plugin-markdown` dependencies installed (they are listed in `devDependencies` in `package.json`).
 
-5.  **Run examples (optional):**
+7.  **Run examples (optional):**
 
     After building the project, you can run the example code provided in the repository to test CoreRoute.  Navigate to the directory containing the example files (if any) and run them using Node.js. For example, if you have an example file named `example.js`:
 
@@ -196,7 +210,7 @@ If you are a developer and want to build CoreRoute from source, follow these ste
     ```
     Adjust the path and filename according to your project's structure and example file names.
 
-You can then modify the source code, rebuild, and test your changes.  If you intend to contribute back to the project, please follow the contribution guidelines (if any) outlined in the repository.
+You can then modify the source code, **ensuring you run linting and tests after your changes**, rebuild, and test your changes further.  If you intend to contribute back to the project, please follow the contribution guidelines (if any) outlined in the repository.
 
 ## Documentation
 

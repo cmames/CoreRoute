@@ -10,9 +10,9 @@
     "doc": "typedoc --plugin typedoc-plugin-markdown src/coreroute.ts",
     "lint": "npx eslint src/**/*.ts",
     "build": "npx tsc",
-    "patch": "npm run lint && npm run build && npm run .xscripts && .github/scripts/patch.sh",
-    "minor": "npm run lint && npm run build && npm run .xscripts && .github/scripts/minor.sh",
-    "major": "npm run lint && npm run build && npm run .xscripts && .github/scripts/major.sh",
+    "patch": "npm run lint && npm run build && npm run doc && npm run .xscripts && .github/scripts/patch.sh",
+    "minor": "npm run lint && npm run build && npm run doc && npm run .xscripts && .github/scripts/minor.sh",
+    "major": "npm run lint && npm run build && npm run doc && npm run .xscripts && .github/scripts/major.sh",
     "test": "jest"
   },
   "repository": {
