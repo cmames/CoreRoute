@@ -11,5 +11,3 @@ patch=$((patch + 1))
 new_version="${major}.${minor}.${patch}"
 
 jq ".version = \"${new_version}\"" package.json > temp.json && mv temp.json package.json
-
-sed -i -E "s/\?cachebuster=[^)]*\)/?cachebuster=${new_version})/g" README.md
