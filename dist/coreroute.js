@@ -19,7 +19,6 @@ export class CoreRoute {
     #posts;
     #deletes;
     #patchs;
-    #alls;
     #serverInstance;
     #staticFolder;
     #isStaticServingEnabled;
@@ -28,12 +27,11 @@ export class CoreRoute {
      * Initializes route storage and server settings.<br>
      */
     constructor() {
-        this.#gets = {};
-        this.#puts = {};
-        this.#posts = {};
-        this.#deletes = {};
-        this.#patchs = {};
-        this.#alls = {};
+        this.#gets = [];
+        this.#puts = [];
+        this.#posts = [];
+        this.#deletes = [];
+        this.#patchs = [];
         this.#serverInstance = null;
         this.#staticFolder = '';
         this.#isStaticServingEnabled = false;
@@ -43,93 +41,132 @@ export class CoreRoute {
      *<br>
      * @param {string} route The path for the GET request (e.g., '/api/users').
      * @param {function} callback The function to handle the GET request.
-     *                           This function receives `req` and `res` objects as arguments.
+     *                           This function receives `req` and `res` objects as arguments.
      * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
      * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
      * @example
      * coreroute.get('/api/users', (req, res) => {
-     *   res.writeHead(200, {'Content-Type': 'application/json'});
-     *   res.end(JSON.stringify({ message: 'User data' }));
+     *   res.writeHead(200, {'Content-Type': 'application/json'});
+     *   res.end(JSON.stringify({ message: 'User data' }));
      * });
      */
-    get(route, callback) { this.#gets[route] = callback; }
+    get(routePattern, callback) {
+        const { regex, paramNames } = this.#pathToRegex(routePattern);
+        this.#gets.push({
+            routePattern: routePattern,
+            regex: regex,
+            paramNames: paramNames,
+            handler: callback
+        });
+    }
     /**
      * Defines a callback function for handling PUT requests to a specific route.<br>
      *<br>
      * @param {string} route The path for the PUT request.
      * @param {function} callback The function to handle the PUT request.
-     *                           This function receives `req` and `res` objects as arguments.
+     *                           This function receives `req` and `res` objects as arguments.
      * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
      * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
      * @example
      * coreroute.put('/api/items/:id', (req, res) => {
-     *   // Handle update item logic
+     *   // Handle update item logic
      * });
      */
-    put(route, callback) { this.#puts[route] = callback; }
+    put(routePattern, callback) {
+        const { regex, paramNames } = this.#pathToRegex(routePattern);
+        this.#puts.push({
+            routePattern: routePattern,
+            regex: regex,
+            paramNames: paramNames,
+            handler: callback
+        });
+    }
     /**
      * Defines a callback function for handling POST requests to a specific route.<br>
      *<br>
      * @param {string} route The path for the POST request.
      * @param {function} callback The function to handle the POST request.
-     *                           This function receives `req` and `res` objects as arguments
+     *                           This function receives `req` and `res` objects as arguments
      * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
      * @param {http.ServerResponse} callback.res - An http.ServerResponse object..
      * @example
      * coreroute.post('/api/items', (req, res) => {
-     *   // Handle create item logic
+     *   // Handle create item logic
      * });
      */
-    post(route, callback) { this.#posts[route] = callback; }
+    post(routePattern, callback) {
+        const { regex, paramNames } = this.#pathToRegex(routePattern);
+        this.#posts.push({
+            routePattern: routePattern,
+            regex: regex,
+            paramNames: paramNames,
+            handler: callback
+        });
+    }
     /**
      * Defines a callback function for handling DELETE requests to a specific route.<br>
      *<br>
      * @param {string} route The path for the DELETE request.
      * @param {function} callback The function to handle the DELETE request.
-     *                           This function receives `req` and `res` objects as arguments.
+     *                           This function receives `req` and `res` objects as arguments.
      * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
      * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
      * @example
      * coreroute.delete('/api/items/:id', (req, res) => {
-     *   // Handle delete item logic
+     *   // Handle delete item logic
      * });
      */
-    delete(route, callback) { this.#deletes[route] = callback; }
+    delete(routePattern, callback) {
+        const { regex, paramNames } = this.#pathToRegex(routePattern);
+        this.#deletes.push({
+            routePattern: routePattern,
+            regex: regex,
+            paramNames: paramNames,
+            handler: callback
+        });
+    }
     /**
      * Defines a callback function for handling PATCH requests to a specific route.<br>
      *<br>
      * @param {string} route The path for the PATCH request.
      * @param {function} callback The function to handle the PATCH request.
-     *                           This function receives `req` and `res` objects as arguments.
+     *                           This function receives `req` and `res` objects as arguments.
      * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
      * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
      * @example
      * coreroute.patch('/api/items/:id', (req, res) => {
-     *   // Handle partial update item logic
+     *   // Handle partial update item logic
      * });
      */
-    patch(route, callback) { this.#patchs[route] = callback; }
+    patch(routePattern, callback) {
+        const { regex, paramNames } = this.#pathToRegex(routePattern);
+        this.#patchs.push({
+            routePattern: routePattern,
+            regex: regex,
+            paramNames: paramNames,
+            handler: callback
+        });
+    }
     /**
      * Defines a callback function for handling requests for ALL HTTP methods to a specific route.<br>
      * This is useful for implementing route handlers that should respond to any type of HTTP request.<br>
      *<br>
      * @param {string} route The path for the ALL methods request.
      * @param {function} callback The function to handle all types of requests to this route.
-     *                           This function receives `req` and `res` objects as arguments.
+     *                           This function receives `req` and `res` objects as arguments.
      * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
      * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
      * @example
      * coreroute.all('/api/items', (req, res) => {
-     *   // Handle request for any HTTP method to /api/items
+     *   // Handle request for any HTTP method to /api/items
      * });
      */
-    all(route, callback) {
-        this.#alls[route] = callback;
-        this.#gets[route] = callback;
-        this.#puts[route] = callback;
-        this.#posts[route] = callback;
-        this.#deletes[route] = callback;
-        this.#patchs[route] = callback;
+    all(routePattern, callback) {
+        this.get(routePattern, callback);
+        this.put(routePattern, callback);
+        this.post(routePattern, callback);
+        this.delete(routePattern, callback);
+        this.patch(routePattern, callback);
     }
     /**
      * Enables serving static files from a specified folder.<br>
@@ -186,6 +223,7 @@ export class CoreRoute {
         let server;
         let options = undefined;
         let listenCallback = undefined;
+        console.log('Current working directory (CWD) during server start:', process.cwd()); // ✅ Ajout de ce log
         if (typeof optionsOrCallback === 'function') {
             // Cas 1: listen(port, callback?) - HTTP avec callback optionnel
             listenCallback = optionsOrCallback;
@@ -211,6 +249,20 @@ export class CoreRoute {
         server.listen(port, listenCallback);
     }
     /**
+     * Closes the server instance gracefully.
+     * This method stops the server from accepting new connections and
+     * closes all active connections. It is useful for shutting down the server programmatically,
+     * for example during testing or when the application needs to exit.
+     *
+     * @example
+     * ```typescript
+     * coreRoute.close(); // Stop the server
+     * ```
+     */
+    close() {
+        this.#serverInstance?.close();
+    }
+    /**
      * Dispatches incoming requests to the appropriate route handler or static file handler.<br>
      * This method is the core request handler for the HTTP server. It first checks for matching API routes.<br>
      * If no API route is found and static file serving is enabled, it attempts to serve a static file.<br>
@@ -220,36 +272,54 @@ export class CoreRoute {
      * @param {http.ServerResponse} res The HTTP server response object.
      */
     #dispatch(req, res) {
-        let tab = null; // On laisse tab en 'any' pour l'instant
+        let routesArray = null; // 'routesArray' pour être plus clair que 'tab'
         switch (req.method) {
             case "GET":
-                tab = this.#gets;
+                routesArray = this.#gets;
                 break;
             case "PUT":
-                tab = this.#puts;
+                routesArray = this.#puts;
                 break;
             case "POST":
-                tab = this.#posts;
+                routesArray = this.#posts;
                 break;
             case "DELETE":
-                tab = this.#deletes;
+                routesArray = this.#deletes;
                 break;
             case "PATCH":
-                tab = this.#patchs;
+                routesArray = this.#patchs;
                 break;
         }
         const requestUrl = req.url || '/';
-        let url = new URL(requestUrl, `http://${req.headers.host}`);
-        if (tab && tab[url.pathname]) {
-            try {
-                tab[url.pathname](req, res);
-            }
-            catch (error) {
-                this.#errorHandler(res, 500, "Internal Server Error");
+        const url = new URL(requestUrl, `http://${req.headers.host}`);
+        if (routesArray) {
+            for (const route of routesArray) {
+                const routeRegexResult = route.regex.exec(url.pathname);
+                if (routeRegexResult) {
+                    const params = {};
+                    if (route.paramNames && routeRegexResult.groups) {
+                        for (const paramName of route.paramNames) {
+                            if (routeRegexResult.groups[paramName]) {
+                                params[paramName] = routeRegexResult.groups[paramName];
+                            }
+                        }
+                    }
+                    req.params = params; // Ajout de la propriété req.params à l'objet requête
+                    try {
+                        route.handler(req, res); // Appel du handler de la route
+                    }
+                    catch (error) {
+                        this.#errorHandler(res, 500, "Internal Server Error : " + error);
+                    }
+                    return; // Arrêt après avoir trouvé et exécuté une route correspondante
+                }
             }
         }
-        else if (this.#isStaticServingEnabled) {
+        if (this.#isStaticServingEnabled) {
             this.#staticHandler(req, res);
+        }
+        else {
+            this.#errorHandler(res, 404, "Route Not Found"); // 404 si pas de route API correspondante et pas de fichiers statiques
         }
     }
     /**
@@ -319,7 +389,7 @@ export class CoreRoute {
      * @private
      * @param {string} file The path to the file.
      * @returns {string} The MIME type string for the file.
-     *                  Defaults to 'application/octet-stream' if the extension is not found.
+     *                  Defaults to 'application/octet-stream' if the extension is not found.
      * @see {@link https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types} for common MIME types.
      */
     #getMimeType(file) {
@@ -406,5 +476,29 @@ export class CoreRoute {
     #errorHandler(res, httpCode, message) {
         res.writeHead(httpCode, { 'Content-Type': 'text/plain' });
         res.end(message);
+    }
+    /**
+     * Utility function to convert a route pattern to a regular expression.
+     * It also extracts the parameter names from the route.
+     *
+     * @private
+     * @param {string} routePattern The route pattern (e.g., '/users/:id').
+     * @returns {{ regex: RegExp, paramNames: string[] }} An object containing the regex and an array of parameter names.
+     */
+    #pathToRegex(routePattern) {
+        const paramNames = [];
+        const escapedRoutePattern = routePattern.replace(/[/\\]/g, '/');
+        const regexString = escapedRoutePattern.split('/').map(segment => {
+            if (segment.startsWith(':')) {
+                const paramName = segment.substring(1);
+                paramNames.push(paramName);
+                return `(?<${paramName}>[^\\/]+)`;
+            }
+            else {
+                return segment ? segment.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&') : '';
+            }
+        }).filter(segmentRegex => segmentRegex !== '').join('/');
+        const regex = new RegExp(`^/${regexString}$`);
+        return { regex, paramNames };
     }
 }

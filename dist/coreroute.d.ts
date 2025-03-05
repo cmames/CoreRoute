@@ -1,6 +1,36 @@
 import * as http from 'http';
 import * as https from 'https';
 /**
+ * @module http-augmentation
+ * @description Augmentation of the built-in 'http' module to add custom properties.
+ *
+ * This module augmentation extends the `http.IncomingMessage` interface
+ * to include the `params` property, which is used to store route parameters
+ * extracted during request dispatching in CoreRoute.
+ */
+declare module 'http' {
+    /**
+     * Interface augmentation for `http.IncomingMessage`.
+     *
+     * Adds the `params` property to the `IncomingMessage` interface
+     * to store route parameters.
+     *
+     * @interface IncomingMessage
+     * @extends http.IncomingMessage
+     */
+    interface IncomingMessage {
+        /**
+         *  `params` property added to `IncomingMessage` by CoreRoute.
+         *  It's an object to store route parameters extracted from the URL path
+         *  during dynamic routing.
+         *
+         *  @property params
+         *  @type {Record<string, string>}
+         */
+        params: Record<string, string>;
+    }
+}
+/**
  * Type definition for route handler functions in CoreRoute.
  * A RouteHandler function is responsible for processing incoming HTTP requests
  * for a specific route and sending back a response.
@@ -33,87 +63,87 @@ export declare class CoreRoute {
      *<br>
      * @param {string} route The path for the GET request (e.g., '/api/users').
      * @param {function} callback The function to handle the GET request.
-     *                           This function receives `req` and `res` objects as arguments.
+     *                           This function receives `req` and `res` objects as arguments.
      * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
      * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
      * @example
      * coreroute.get('/api/users', (req, res) => {
-     *   res.writeHead(200, {'Content-Type': 'application/json'});
-     *   res.end(JSON.stringify({ message: 'User data' }));
+     *   res.writeHead(200, {'Content-Type': 'application/json'});
+     *   res.end(JSON.stringify({ message: 'User data' }));
      * });
      */
-    get(route: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void): void;
+    get(routePattern: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void): void;
     /**
      * Defines a callback function for handling PUT requests to a specific route.<br>
      *<br>
      * @param {string} route The path for the PUT request.
      * @param {function} callback The function to handle the PUT request.
-     *                           This function receives `req` and `res` objects as arguments.
+     *                           This function receives `req` and `res` objects as arguments.
      * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
      * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
      * @example
      * coreroute.put('/api/items/:id', (req, res) => {
-     *   // Handle update item logic
+     *   // Handle update item logic
      * });
      */
-    put(route: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void): void;
+    put(routePattern: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void): void;
     /**
      * Defines a callback function for handling POST requests to a specific route.<br>
      *<br>
      * @param {string} route The path for the POST request.
      * @param {function} callback The function to handle the POST request.
-     *                           This function receives `req` and `res` objects as arguments
+     *                           This function receives `req` and `res` objects as arguments
      * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
      * @param {http.ServerResponse} callback.res - An http.ServerResponse object..
      * @example
      * coreroute.post('/api/items', (req, res) => {
-     *   // Handle create item logic
+     *   // Handle create item logic
      * });
      */
-    post(route: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void): void;
+    post(routePattern: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void): void;
     /**
      * Defines a callback function for handling DELETE requests to a specific route.<br>
      *<br>
      * @param {string} route The path for the DELETE request.
      * @param {function} callback The function to handle the DELETE request.
-     *                           This function receives `req` and `res` objects as arguments.
+     *                           This function receives `req` and `res` objects as arguments.
      * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
      * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
      * @example
      * coreroute.delete('/api/items/:id', (req, res) => {
-     *   // Handle delete item logic
+     *   // Handle delete item logic
      * });
      */
-    delete(route: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void): void;
+    delete(routePattern: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void): void;
     /**
      * Defines a callback function for handling PATCH requests to a specific route.<br>
      *<br>
      * @param {string} route The path for the PATCH request.
      * @param {function} callback The function to handle the PATCH request.
-     *                           This function receives `req` and `res` objects as arguments.
+     *                           This function receives `req` and `res` objects as arguments.
      * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
      * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
      * @example
      * coreroute.patch('/api/items/:id', (req, res) => {
-     *   // Handle partial update item logic
+     *   // Handle partial update item logic
      * });
      */
-    patch(route: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void): void;
+    patch(routePattern: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void): void;
     /**
      * Defines a callback function for handling requests for ALL HTTP methods to a specific route.<br>
      * This is useful for implementing route handlers that should respond to any type of HTTP request.<br>
      *<br>
      * @param {string} route The path for the ALL methods request.
      * @param {function} callback The function to handle all types of requests to this route.
-     *                           This function receives `req` and `res` objects as arguments.
+     *                           This function receives `req` and `res` objects as arguments.
      * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
      * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
      * @example
      * coreroute.all('/api/items', (req, res) => {
-     *   // Handle request for any HTTP method to /api/items
+     *   // Handle request for any HTTP method to /api/items
      * });
      */
-    all(route: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void): void;
+    all(routePattern: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void): void;
     /**
      * Enables serving static files from a specified folder.<br>
      * When enabled, if a requested path does not match any defined API routes,<br>
@@ -163,4 +193,16 @@ export declare class CoreRoute {
      * ```
      */
     listen(port: number, optionsOrCallback?: https.ServerOptions | (() => void), callback?: () => void): void;
+    /**
+     * Closes the server instance gracefully.
+     * This method stops the server from accepting new connections and
+     * closes all active connections. It is useful for shutting down the server programmatically,
+     * for example during testing or when the application needs to exit.
+     *
+     * @example
+     * ```typescript
+     * coreRoute.close(); // Stop the server
+     * ```
+     */
+    close(): void;
 }

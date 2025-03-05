@@ -1,6 +1,6 @@
 {
   "name": "coreroute",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A simplified HTTP Router class for Node.js applications",
   "main": "dist/coreroute.js",
   "types": "dist/coreroute.d.ts",
@@ -8,10 +8,12 @@
   "scripts": {
     ".xscripts": "chmod +x .github/scripts/patch.sh && chmod +x .github/scripts/minor.sh && chmod +x .github/scripts/major.sh",
     "doc": "typedoc --plugin typedoc-plugin-markdown src/coreroute.ts",
+    "lint": "npx eslint src/**/*.ts",
     "build": "npx tsc",
-    "patch": "npm run build && npm run .xscripts && .github/scripts/patch.sh",
-    "minor": "npm run build && npm run .xscripts && .github/scripts/minor.sh",
-    "major": "npm run build && npm run .xscripts && .github/scripts/major.sh"
+    "patch": "npm run lint && npm run build && npm run .xscripts && .github/scripts/patch.sh",
+    "minor": "npm run lint && npm run build && npm run .xscripts && .github/scripts/minor.sh",
+    "major": "npm run lint && npm run build && npm run .xscripts && .github/scripts/major.sh",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -32,10 +34,22 @@
   },
   "homepage": "https://github.com/cmames/CoreRoute#readme",
   "devDependencies": {
+    "@eslint/js": "^9.21.0",
+    "@types/jest": "^29.5.14",
     "@types/node": "^22.13.5",
+    "@typescript-eslint/eslint-plugin": "^8.26.0",
+    "@typescript-eslint/parser": "^8.26.0",
+    "eslint": "^9.21.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-n": "^17.16.1",
+    "eslint-plugin-promise": "^7.2.1",
+    "globals": "^16.0.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.6",
     "typedoc": "^0.27.9",
     "typedoc-plugin-markdown": "^4.4.2",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.26.0"
   },
   "files": [
     "dist",

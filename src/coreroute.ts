@@ -3,6 +3,68 @@ import * as https from 'https';
 import * as fs from "fs";
 import * as path from "path";
 
+/**
+ * @module http-augmentation
+ * @description Augmentation of the built-in 'http' module to add custom properties.
+ *
+ * This module augmentation extends the `http.IncomingMessage` interface
+ * to include the `params` property, which is used to store route parameters
+ * extracted during request dispatching in CoreRoute.
+ */
+declare module 'http' {
+    /**
+     * Interface augmentation for `http.IncomingMessage`.
+     *
+     * Adds the `params` property to the `IncomingMessage` interface
+     * to store route parameters.
+     *
+     * @interface IncomingMessage
+     * @extends http.IncomingMessage
+     */
+    interface IncomingMessage {
+      /**
+       *  `params` property added to `IncomingMessage` by CoreRoute.
+       *  It's an object to store route parameters extracted from the URL path
+       *  during dynamic routing.
+       *
+       *  @property params
+       *  @type {Record<string, string>}
+       */
+      params: Record<string, string>;
+    }
+  }
+  
+/**
+ * Interface defining the structure of a route.
+ * Each route associates a URL pattern with a handler function.
+ */
+interface Route {
+    /**
+     * The URL pattern to match for this route.
+     * Can include parameters in the format `:paramName`.
+     * Example: '/api/users/:userId'
+     */
+    routePattern: string;
+    /**
+     * The regular expression generated from the `routePattern`.
+     * Used internally for efficient URL matching.
+     * @internal // Mark as internal as it's not meant for direct external use.
+     */
+    regex: RegExp;
+    /**
+     * An array of parameter names extracted from the `routePattern`.
+     * Example: ['userId'] for the pattern '/api/users/:userId'.
+     * @internal // Mark as internal as it's not meant for direct external use.
+     */
+    paramNames: string[];
+    /**
+     * The handler function to be executed when the route is matched.
+     * It receives the request and response objects as arguments.
+     * @param req - The incoming HTTP request object.
+     * @param res - The HTTP server response object.
+     */
+    handler: (req: http.IncomingMessage, res: http.ServerResponse) => void;
+}
 
 /**
  * Type definition for route handler functions in CoreRoute.
@@ -16,155 +78,192 @@ import * as path from "path";
 export type RouteHandler = (req: http.IncomingMessage, res: http.ServerResponse) => void;
 
 /**
- * @author Mames Christophe
- * @license GPL-3.0-or-later
- * @class
- * A simplified HTTP Router class for Node.js applications.<br>
- * <br>
- * This class allows you to define routes for different HTTP methods (GET, PUT, POST, DELETE, PATCH, ALL)<br>
- * and to serve static files from a specified folder. It is designed as a lightweight alternative<br>
- * to full-fledged frameworks like ExpressJS for simpler projects.<br>
- *<br>
- */
+ * @author Mames Christophe
+ * @license GPL-3.0-or-later
+ * @class
+ * A simplified HTTP Router class for Node.js applications.<br>
+ * <br>
+ * This class allows you to define routes for different HTTP methods (GET, PUT, POST, DELETE, PATCH, ALL)<br>
+ * and to serve static files from a specified folder. It is designed as a lightweight alternative<br>
+ * to full-fledged frameworks like ExpressJS for simpler projects.<br>
+ *<br>
+ */
 export class CoreRoute {
-    #gets: { [route: string]: RouteHandler };
-    #puts: { [route: string]: RouteHandler };
-    #posts: { [route: string]: RouteHandler };
-    #deletes: { [route: string]: RouteHandler };
-    #patchs: { [route: string]: RouteHandler };
-    #alls: { [route: string]: RouteHandler };
-    #serverInstance: http.Server | https.Server | null;
-    #staticFolder: string;
-    #isStaticServingEnabled: boolean;
+    #gets: Array<{ routePattern: string, regex: RegExp, paramNames: string[], handler: RouteHandler }>;
+    #puts: Array<{ routePattern: string, regex: RegExp, paramNames: string[], handler: RouteHandler }>;
+    #posts: Array<{ routePattern: string, regex: RegExp, paramNames: string[], handler: RouteHandler }>;
+    #deletes: Array<{ routePattern: string, regex: RegExp, paramNames: string[], handler: RouteHandler }>;
+    #patchs: Array<{ routePattern: string, regex: RegExp, paramNames: string[], handler: RouteHandler }>;
+    #serverInstance: http.Server | https.Server | null;
+    #staticFolder: string;
+    #isStaticServingEnabled: boolean;
 
-    /**
-     * Constructor for the CoreRoute class.<br>
-     * Initializes route storage and server settings.<br>
-     */
-    constructor() {
-        this.#gets = {};
-        this.#puts = {};
-        this.#posts = {};
-        this.#deletes = {};
-        this.#patchs = {};
-        this.#alls = {};
-        this.#serverInstance = null;
-        this.#staticFolder = '';
-        this.#isStaticServingEnabled = false;
-    }
+    /**
+     * Constructor for the CoreRoute class.<br>
+     * Initializes route storage and server settings.<br>
+     */
+    constructor() {
+        this.#gets = [];
+        this.#puts = [];
+        this.#posts = [];
+        this.#deletes = [];
+        this.#patchs = [];
 
-    /**
-     * Defines a callback function for handling GET requests to a specific route.<br>
-     *<br>
-     * @param {string} route The path for the GET request (e.g., '/api/users').
-     * @param {function} callback The function to handle the GET request.
-     *                           This function receives `req` and `res` objects as arguments.
+        this.#serverInstance = null;
+        this.#staticFolder = '';
+        this.#isStaticServingEnabled = false;
+    }
+
+    /**
+     * Defines a callback function for handling GET requests to a specific route.<br>
+     *<br>
+     * @param {string} route The path for the GET request (e.g., '/api/users').
+     * @param {function} callback The function to handle the GET request.
+     *                           This function receives `req` and `res` objects as arguments.
 	 * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
 	 * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
-     * @example
-     * coreroute.get('/api/users', (req, res) => {
-     *   res.writeHead(200, {'Content-Type': 'application/json'});
-     *   res.end(JSON.stringify({ message: 'User data' }));
-     * });
-     */
-    get(route: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void) { this.#gets[route] = callback; }
-
-    /**
-     * Defines a callback function for handling PUT requests to a specific route.<br>
-     *<br>
-     * @param {string} route The path for the PUT request.
-     * @param {function} callback The function to handle the PUT request.
-     *                           This function receives `req` and `res` objects as arguments.
+     * @example
+     * coreroute.get('/api/users', (req, res) => {
+     *   res.writeHead(200, {'Content-Type': 'application/json'});
+     *   res.end(JSON.stringify({ message: 'User data' }));
+     * });
+     */
+    get(routePattern: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void) {
+        const { regex, paramNames } = this.#pathToRegex(routePattern);
+        this.#gets.push({
+            routePattern: routePattern,
+            regex: regex,
+            paramNames: paramNames,
+            handler: callback
+        });
+    }
+    /**
+     * Defines a callback function for handling PUT requests to a specific route.<br>
+     *<br>
+     * @param {string} route The path for the PUT request.
+     * @param {function} callback The function to handle the PUT request.
+     *                           This function receives `req` and `res` objects as arguments.
 	 * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
 	 * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
-     * @example
-     * coreroute.put('/api/items/:id', (req, res) => {
-     *   // Handle update item logic
-     * });
-     */
-    put(route: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void) { this.#puts[route] = callback; } 
+     * @example
+     * coreroute.put('/api/items/:id', (req, res) => {
+     *   // Handle update item logic
+     * });
+     */
+    put(routePattern: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void) {
+        const { regex, paramNames } = this.#pathToRegex(routePattern);
+        this.#puts.push({
+            routePattern: routePattern,
+            regex: regex,
+            paramNames: paramNames,
+            handler: callback
+        });
+    } 
 
-    /**
-     * Defines a callback function for handling POST requests to a specific route.<br>
-     *<br>
-     * @param {string} route The path for the POST request.
-     * @param {function} callback The function to handle the POST request.
-     *                           This function receives `req` and `res` objects as arguments
+    /**
+     * Defines a callback function for handling POST requests to a specific route.<br>
+     *<br>
+     * @param {string} route The path for the POST request.
+     * @param {function} callback The function to handle the POST request.
+     *                           This function receives `req` and `res` objects as arguments
 	 * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
 	 * @param {http.ServerResponse} callback.res - An http.ServerResponse object..
-     * @example
-     * coreroute.post('/api/items', (req, res) => {
-     *   // Handle create item logic
-     * });
-     */
-    post(route: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void) { this.#posts[route] = callback; } 
+     * @example
+     * coreroute.post('/api/items', (req, res) => {
+     *   // Handle create item logic
+     * });
+     */
+    post(routePattern: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void) {
+        const { regex, paramNames } = this.#pathToRegex(routePattern);
+        this.#posts.push({
+            routePattern: routePattern,
+            regex: regex,
+            paramNames: paramNames,
+            handler: callback
+        });
+    } 
 
-    /**
-     * Defines a callback function for handling DELETE requests to a specific route.<br>
-     *<br>
-     * @param {string} route The path for the DELETE request.
-     * @param {function} callback The function to handle the DELETE request.
-     *                           This function receives `req` and `res` objects as arguments.
+    /**
+     * Defines a callback function for handling DELETE requests to a specific route.<br>
+     *<br>
+     * @param {string} route The path for the DELETE request.
+     * @param {function} callback The function to handle the DELETE request.
+     *                           This function receives `req` and `res` objects as arguments.
 	 * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
 	 * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
-     * @example
-     * coreroute.delete('/api/items/:id', (req, res) => {
-     *   // Handle delete item logic
-     * });
-     */
-    delete(route: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void) { this.#deletes[route] = callback; } 
+     * @example
+     * coreroute.delete('/api/items/:id', (req, res) => {
+     *   // Handle delete item logic
+     * });
+     */
+    delete(routePattern: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void) {
+        const { regex, paramNames } = this.#pathToRegex(routePattern);
+        this.#deletes.push({
+            routePattern: routePattern,
+            regex: regex,
+            paramNames: paramNames,
+            handler: callback
+        });
+    } 
 
-    /**
-     * Defines a callback function for handling PATCH requests to a specific route.<br>
-     *<br>
-     * @param {string} route The path for the PATCH request.
-     * @param {function} callback The function to handle the PATCH request.
-     *                           This function receives `req` and `res` objects as arguments.
+    /**
+     * Defines a callback function for handling PATCH requests to a specific route.<br>
+     *<br>
+     * @param {string} route The path for the PATCH request.
+     * @param {function} callback The function to handle the PATCH request.
+     *                           This function receives `req` and `res` objects as arguments.
 	 * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
 	 * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
-     * @example
-     * coreroute.patch('/api/items/:id', (req, res) => {
-     *   // Handle partial update item logic
-     * });
-     */
-    patch(route: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void) { this.#patchs[route] = callback; } 
+     * @example
+     * coreroute.patch('/api/items/:id', (req, res) => {
+     *   // Handle partial update item logic
+     * });
+     */
+    patch(routePattern: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void) {
+        const { regex, paramNames } = this.#pathToRegex(routePattern);
+        this.#patchs.push({
+            routePattern: routePattern,
+            regex: regex,
+            paramNames: paramNames,
+            handler: callback
+        });
+    } 
 
-    /**
-     * Defines a callback function for handling requests for ALL HTTP methods to a specific route.<br>
-     * This is useful for implementing route handlers that should respond to any type of HTTP request.<br>
-     *<br>
-     * @param {string} route The path for the ALL methods request.
-     * @param {function} callback The function to handle all types of requests to this route.
-     *                           This function receives `req` and `res` objects as arguments.
+    /**
+     * Defines a callback function for handling requests for ALL HTTP methods to a specific route.<br>
+     * This is useful for implementing route handlers that should respond to any type of HTTP request.<br>
+     *<br>
+     * @param {string} route The path for the ALL methods request.
+     * @param {function} callback The function to handle all types of requests to this route.
+     *                           This function receives `req` and `res` objects as arguments.
 	 * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
 	 * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
-     * @example
-     * coreroute.all('/api/items', (req, res) => {
-     *   // Handle request for any HTTP method to /api/items
-     * });
-     */
-    all(route: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void) { 
-        this.#alls[route] = callback;
-        this.#gets[route] = callback;
-        this.#puts[route] = callback;
-        this.#posts[route] = callback;
-        this.#deletes[route] = callback;
-        this.#patchs[route] = callback;
-    }
+     * @example
+     * coreroute.all('/api/items', (req, res) => {
+     *   // Handle request for any HTTP method to /api/items
+     * });
+     */
+    all(routePattern: string, callback: (req: http.IncomingMessage, res: http.ServerResponse) => void) {
+        this.get(routePattern, callback);
+        this.put(routePattern, callback);
+        this.post(routePattern, callback);
+        this.delete(routePattern, callback);
+        this.patch(routePattern, callback);
+    }
 
-    /**
-     * Enables serving static files from a specified folder.<br>
-     * When enabled, if a requested path does not match any defined API routes,<br>
-     * the server will attempt to serve a file from the static folder.<br>
-     *<br>
-     * @param {string} folder The path to the folder containing static files (e.g., './public').
-     * @example
-     * coreroute.serveStaticFiles('./public'); // Serve static files from the 'public' directory
-     */
-     serveStaticFiles(folder: string) { 
-        this.#staticFolder = folder;
-        this.#isStaticServingEnabled = true;
-    }
+    /**
+     * Enables serving static files from a specified folder.<br>
+     * When enabled, if a requested path does not match any defined API routes,<br>
+     * the server will attempt to serve a file from the static folder.<br>
+     *<br>
+     * @param {string} folder The path to the folder containing static files (e.g., './public').
+     * @example
+     * coreroute.serveStaticFiles('./public'); // Serve static files from the 'public' directory
+     */
+     serveStaticFiles(folder: string) { 
+        this.#staticFolder = folder;
+        this.#isStaticServingEnabled = true;
+    }
 
     /**
      * Starts the server on the specified port, optionally with HTTPS.<br>
@@ -208,6 +307,8 @@ export class CoreRoute {
         let server: http.Server | https.Server;
         let options: https.ServerOptions | undefined = undefined;
         let listenCallback: (() => void) | undefined = undefined;
+        console.log('Current working directory (CWD) during server start:', process.cwd()); // ✅ Ajout de ce log
+
 
         if (typeof optionsOrCallback === 'function') {
             // Cas 1: listen(port, callback?) - HTTP avec callback optionnel
@@ -234,49 +335,81 @@ export class CoreRoute {
         server.listen(port, listenCallback);
     }
 
+    /**
+     * Closes the server instance gracefully.
+     * This method stops the server from accepting new connections and
+     * closes all active connections. It is useful for shutting down the server programmatically,
+     * for example during testing or when the application needs to exit.
+     *
+     * @example
+     * ```typescript
+     * coreRoute.close(); // Stop the server
+     * ```
+     */
+    close(){
+        this.#serverInstance?.close();
+    }
 
-    /**
-     * Dispatches incoming requests to the appropriate route handler or static file handler.<br>
-     * This method is the core request handler for the HTTP server. It first checks for matching API routes.<br>
-     * If no API route is found and static file serving is enabled, it attempts to serve a static file.<br>
-     *<br>
-     * @private
-     * @param {http.IncomingMessage} req The incoming HTTP request object.
-     * @param {http.ServerResponse} res The HTTP server response object.
-     */
-    #dispatch(req: http.IncomingMessage, res: http.ServerResponse) { 
-        let tab: any = null; // On laisse tab en 'any' pour l'instant
-        switch (req.method) {
-            case "GET": tab = this.#gets; break;
-            case "PUT": tab = this.#puts; break;
-            case "POST": tab = this.#posts; break;
-            case "DELETE": tab = this.#deletes; break;
-            case "PATCH": tab = this.#patchs; break;
-        }
+
+    /**
+     * Dispatches incoming requests to the appropriate route handler or static file handler.<br>
+     * This method is the core request handler for the HTTP server. It first checks for matching API routes.<br>
+     * If no API route is found and static file serving is enabled, it attempts to serve a static file.<br>
+     *<br>
+     * @private
+     * @param {http.IncomingMessage} req The incoming HTTP request object.
+     * @param {http.ServerResponse} res The HTTP server response object.
+     */
+    #dispatch(req: http.IncomingMessage, res: http.ServerResponse) {
+        let routesArray: Route[] | null = null; // 'routesArray' pour être plus clair que 'tab'
+        switch (req.method) {
+            case "GET": routesArray = this.#gets; break;
+            case "PUT": routesArray = this.#puts; break;
+            case "POST": routesArray = this.#posts; break;
+            case "DELETE": routesArray = this.#deletes; break;
+            case "PATCH": routesArray = this.#patchs; break;
+        }
         const requestUrl = req.url || '/';
-        let url = new URL(requestUrl, `http://${req.headers.host}`);
-        if (tab && tab[url.pathname]) {
-            try {
-                tab[url.pathname](req, res);
-            }
-            catch (error) {
-                this.#errorHandler(res, 500, "Internal Server Error");
-            }
-        }
-        else if (this.#isStaticServingEnabled) {
-            this.#staticHandler(req, res);
-        }
-    }
+        const url = new URL(requestUrl, `http://${req.headers.host}`);
+        if (routesArray) {
+            for (const route of routesArray) {
+                const routeRegexResult = route.regex.exec(url.pathname);
+                if (routeRegexResult) {
+                    const params: { [key: string]: string } = {};
+                    if (route.paramNames && routeRegexResult.groups) {
+                        for (const paramName of route.paramNames) {
+                            if (routeRegexResult.groups[paramName]) {
+                                params[paramName] = routeRegexResult.groups[paramName];
+                            }
+                        }
+                    }
+                    req.params = params; // Ajout de la propriété req.params à l'objet requête
+                    try {
+                        route.handler(req, res); // Appel du handler de la route
+                    } catch (error) {
+                        this.#errorHandler(res, 500, "Internal Server Error : "+error);
+                    }
+                    return; // Arrêt après avoir trouvé et exécuté une route correspondante
+                }
+            }
+        }
 
-    /**
-     * Handles requests for static files.<br>
-     * Attempts to read and serve a file from the configured static folder.<br>
-     * If the file is found, it is streamed to the response. If not found, a 404 error is sent.<br>
-     *<br>
-     * @private
-     * @param {http.IncomingMessage} req The incoming HTTP request object.
-     * @param {http.ServerResponse} res The HTTP server response object.
-     */
+        if (this.#isStaticServingEnabled) {
+            this.#staticHandler(req, res);
+        } else {
+            this.#errorHandler(res, 404, "Route Not Found"); // 404 si pas de route API correspondante et pas de fichiers statiques
+        }
+    }
+
+    /**
+     * Handles requests for static files.<br>
+     * Attempts to read and serve a file from the configured static folder.<br>
+     * If the file is found, it is streamed to the response. If not found, a 404 error is sent.<br>
+     *<br>
+     * @private
+     * @param {http.IncomingMessage} req The incoming HTTP request object.
+     * @param {http.ServerResponse} res The HTTP server response object.
+     */
     #staticHandler(req: http.IncomingMessage, res: http.ServerResponse) {
         const requestUrl = req.url || '';
         let filePath = path.join(this.#staticFolder, requestUrl);
@@ -303,15 +436,15 @@ export class CoreRoute {
         });
     };
 
-    /**
-     * Serve a file<br>
-     * If the file is found, it is streamed to the response. If not found, a 404 error is sent.<br>
-     *<br>
-     * @private
+    /**
+     * Serve a file<br>
+     * If the file is found, it is streamed to the response. If not found, a 404 error is sent.<br>
+     *<br>
+     * @private
      * @param {string} filePath The path an file name.
-     * @param {http.IncomingMessage} req The incoming HTTP request object.
-     * @param {http.ServerResponse} res The HTTP server response object.
-     */
+     * @param {http.IncomingMessage} req The incoming HTTP request object.
+     * @param {http.ServerResponse} res The HTTP server response object.
+     */
     #serveFile(filePath: string, req: http.IncomingMessage, res: http.ServerResponse) {
         fs.access(filePath, fs.constants.R_OK, (accessErr) => {
             if (!accessErr) {
@@ -326,21 +459,21 @@ export class CoreRoute {
         });
     }
 
-    /**
-     * Determines the MIME type of a file based on its extension.<br>
-     * Uses a predefined list of common MIME types. If the extension is not recognized,<br>
-     * it defaults to 'application/octet-stream'.<br>
-     *<br>
-     * @private
-     * @param {string} file The path to the file.
-     * @returns {string} The MIME type string for the file.
-     *                  Defaults to 'application/octet-stream' if the extension is not found.
-     * @see {@link https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types} for common MIME types.
-     */
-    #getMimeType(file: string): string { 
-        const extension = path.extname(file).toLowerCase().substring(1);
-        const mimeTypes: { [key: string]: string } = { // On type mimeTypes comme un objet string-string
-                aac: "audio/aac", // fichier audio AAC
+    /**
+     * Determines the MIME type of a file based on its extension.<br>
+     * Uses a predefined list of common MIME types. If the extension is not recognized,<br>
+     * it defaults to 'application/octet-stream'.<br>
+     *<br>
+     * @private
+     * @param {string} file The path to the file.
+     * @returns {string} The MIME type string for the file.
+     *                  Defaults to 'application/octet-stream' if the extension is not found.
+     * @see {@link https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types} for common MIME types.
+     */
+    #getMimeType(file: string): string { 
+        const extension = path.extname(file).toLowerCase().substring(1);
+        const mimeTypes: { [key: string]: string } = { // On type mimeTypes comme un objet string-string
+                aac: "audio/aac", // fichier audio AAC
                 abw: "application/x-abiword", // document AbiWord
                 arc: "application/octet-stream", // archive (contenant plusieurs fichiers)
                 avi: "video/x-msvideo", // AVI : Audio Video Interleave
@@ -405,21 +538,47 @@ export class CoreRoute {
                 "3gp": "audio/3gpp dans le cas où le conteneur ne comprend pas de vidéo", // conteneur audio/vidéo 3GPP video/3gpp
                 "3g2": "audio/3gpp2 dans le cas où le conteneur ne comprend pas de vidéo", // conteneur audio/vidéo 3GPP2 video/3gpp2
                 "7z": "application/x-7z-compressed", // archive 7-zip
-            };
-        return mimeTypes[extension] || "application/octet-stream";
-    };
+            };
+        return mimeTypes[extension] || "application/octet-stream";
+    };
 
-    /**
-     * Centralized error handler for sending error responses to the client.<br>
-     * This method sets the appropriate HTTP status code and sends a plain text error message.<br>
-     *<br>
-     * @private
-     * @param {http.ServerResponse} res The HTTP server response object.
-     * @param {number} httpCode The HTTP status code to send in the response (e.g., 404, 500).
-     * @param {string} message The error message to send in the response body.
-     */
-    #errorHandler(res: http.ServerResponse, httpCode: number, message: string): void { 
-        res.writeHead(httpCode, { 'Content-Type': 'text/plain' });
-        res.end(message);
-    }
+    /**
+     * Centralized error handler for sending error responses to the client.<br>
+     * This method sets the appropriate HTTP status code and sends a plain text error message.<br>
+     *<br>
+     * @private
+     * @param {http.ServerResponse} res The HTTP server response object.
+     * @param {number} httpCode The HTTP status code to send in the response (e.g., 404, 500).
+     * @param {string} message The error message to send in the response body.
+     */
+    #errorHandler(res: http.ServerResponse, httpCode: number, message: string): void { 
+        res.writeHead(httpCode, { 'Content-Type': 'text/plain' });
+        res.end(message);
+    }
+
+    /**
+     * Utility function to convert a route pattern to a regular expression.
+     * It also extracts the parameter names from the route.
+     *
+     * @private
+     * @param {string} routePattern The route pattern (e.g., '/users/:id').
+     * @returns {{ regex: RegExp, paramNames: string[] }} An object containing the regex and an array of parameter names.
+     */
+    #pathToRegex(routePattern: string): { regex: RegExp, paramNames: string[] } {
+        const paramNames: string[] = [];
+        const escapedRoutePattern = routePattern.replace(/[/\\]/g, '/');
+        const regexString = escapedRoutePattern.split('/').map(segment => {
+            if (segment.startsWith(':')) {
+                const paramName = segment.substring(1);
+                paramNames.push(paramName);
+                return `(?<${paramName}>[^\\/]+)`;
+            }
+            else {
+                return segment ? segment.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&') : ''; 
+            }
+        }).filter(segmentRegex => segmentRegex !== '').join('/');
+
+        const regex = new RegExp(`^/${regexString}$`);
+        return { regex, paramNames };
+    }
 }
