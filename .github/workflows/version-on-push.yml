@@ -3,36 +3,72 @@ name: Création de Tag et Publication NPM au Tag
 on:
   push:
     branches:
-      - main # Branche sur laquelle le workflow se déclenche (ajustez si besoin)
-    tags:        # Déclenchement aussi sur la création de tags
-      - 'v*.*.*'  # Modèle de tag à surveiller (ex: v1.0.0, v2.3.4)
+      - main
 
 jobs:
   tagging_and_publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Lire le numéro de version depuis package.json
-        id: get_version
+      - uses: actions/checkout@v4
+      - name: Setup Node.js pour ESLint et npm publish
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.19.0
+
+      - name: Installer les dépendances
+        run: npm install
+
+      - name: Run ESLint Check
+        id: eslint-check
+        run: npx eslint src/**/*.ts
+        continue-on-error: true
+
+      - name: Déterminer le Tag Git et Statut ESLint
+        id: set_git_tag
+        if: always()
         run: |
           VERSION=$(jq -r '.version' package.json)
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-      - name: Créer et Pousser le tag Git
+          ESLINT_STATUS="${{ steps.eslint-check.outcome }}"
+
+          if [ "$ESLINT_STATUS" == "success" ]; then
+            GIT_TAG="v${VERSION}"
+            echo "✔️ ESLint OK. Tag Git standard: ${GIT_TAG}"
+          else
+            GIT_TAG="v${VERSION}beta"
+            echo "❌ ESLint a détecté des erreurs. Tag Git BETA créé: ${GIT_TAG}"
+          fi
+
+          echo "GIT_TAG=${GIT_TAG}" >> $GITHUB_OUTPUT
+          echo "ESLINT_STATUS=${ESLINT_STATUS}" >> $GITHUB_OUTPUT
+
+      - name: Créer et Pousser le tag Git Conditionnel
         run: |
-          VERSION="${{ steps.get_version.outputs.VERSION }}"
-          git tag "v${VERSION}"
+          GIT_TAG="${{ steps.set_git_tag.outputs.GIT_TAG }}"
+          git tag "${GIT_TAG}"
           git push origin --tags
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Vérifier le statut ESLint (avant publication npm)
+        if: steps.set_git_tag.outputs.ESLINT_STATUS == 'failure'
+        run: |
+          echo "❌ ESLint a détecté des erreurs. La publication sur npm est annulée."
+          exit 1
+
       - name: Configurer Node.js pour npm publish
-        uses: actions/setup-node@v3
+        if: steps.set_git_tag.outputs.ESLINT_STATUS == 'success'
+        uses: actions/setup-node@v4
         with:
-          node-version: 18 # ou la version de Node.js que vous utilisez
-          registry-url: https://registry.npmjs.org/ # URL du registre npm (public)
+          node-version: 18.19.0
+          registry-url: https://registry.npmjs.org/
+
       - name: Authentification auprès de npm
+        if: steps.set_git_tag.outputs.ESLINT_STATUS == 'success'
         run: |
           npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: Publier sur npm
+        if: steps.set_git_tag.outputs.ESLINT_STATUS == 'success'
         run: npm publish

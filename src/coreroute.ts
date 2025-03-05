@@ -34,9 +34,35 @@ declare module 'http' {
     }
   }
   
+/**
+ * Interface defining the structure of a route.
+ * Each route associates a URL pattern with a handler function.
+ */
 interface Route {
+    /**
+     * The URL pattern to match for this route.
+     * Can include parameters in the format `:paramName`.
+     * Example: '/api/users/:userId'
+     */
+    routePattern: string;
+    /**
+     * The regular expression generated from the `routePattern`.
+     * Used internally for efficient URL matching.
+     * @internal // Mark as internal as it's not meant for direct external use.
+     */
     regex: RegExp;
+    /**
+     * An array of parameter names extracted from the `routePattern`.
+     * Example: ['userId'] for the pattern '/api/users/:userId'.
+     * @internal // Mark as internal as it's not meant for direct external use.
+     */
     paramNames: string[];
+    /**
+     * The handler function to be executed when the route is matched.
+     * It receives the request and response objects as arguments.
+     * @param req - The incoming HTTP request object.
+     * @param res - The HTTP server response object.
+     */
     handler: (req: http.IncomingMessage, res: http.ServerResponse) => void;
 }
 
@@ -281,6 +307,8 @@ export class CoreRoute {
         let server: http.Server | https.Server;
         let options: https.ServerOptions | undefined = undefined;
         let listenCallback: (() => void) | undefined = undefined;
+        console.log('Current working directory (CWD) during server start:', process.cwd()); // ✅ Ajout de ce log
+
 
         if (typeof optionsOrCallback === 'function') {
             // Cas 1: listen(port, callback?) - HTTP avec callback optionnel
@@ -305,6 +333,21 @@ export class CoreRoute {
         });
 
         server.listen(port, listenCallback);
+    }
+
+    /**
+     * Closes the server instance gracefully.
+     * This method stops the server from accepting new connections and
+     * closes all active connections. It is useful for shutting down the server programmatically,
+     * for example during testing or when the application needs to exit.
+     *
+     * @example
+     * ```typescript
+     * coreRoute.close(); // Stop the server
+     * ```
+     */
+    close(){
+        this.#serverInstance?.close();
     }
 
 
@@ -535,7 +578,7 @@ export class CoreRoute {
             }
         }).filter(segmentRegex => segmentRegex !== '').join('/');
 
-        const regex = new RegExp(`^${regexString}$`);
+        const regex = new RegExp(`^/${regexString}$`);
         return { regex, paramNames };
     }
 }

@@ -19,7 +19,6 @@ export class CoreRoute {
     #posts;
     #deletes;
     #patchs;
-    #alls;
     #serverInstance;
     #staticFolder;
     #isStaticServingEnabled;
@@ -33,7 +32,6 @@ export class CoreRoute {
         this.#posts = [];
         this.#deletes = [];
         this.#patchs = [];
-        this.#alls = [];
         this.#serverInstance = null;
         this.#staticFolder = '';
         this.#isStaticServingEnabled = false;
@@ -43,13 +41,13 @@ export class CoreRoute {
      *<br>
      * @param {string} route The path for the GET request (e.g., '/api/users').
      * @param {function} callback The function to handle the GET request.
-     *                           This function receives `req` and `res` objects as arguments.
+     *                           This function receives `req` and `res` objects as arguments.
      * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
      * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
      * @example
      * coreroute.get('/api/users', (req, res) => {
-     *   res.writeHead(200, {'Content-Type': 'application/json'});
-     *   res.end(JSON.stringify({ message: 'User data' }));
+     *   res.writeHead(200, {'Content-Type': 'application/json'});
+     *   res.end(JSON.stringify({ message: 'User data' }));
      * });
      */
     get(routePattern, callback) {
@@ -66,12 +64,12 @@ export class CoreRoute {
      *<br>
      * @param {string} route The path for the PUT request.
      * @param {function} callback The function to handle the PUT request.
-     *                           This function receives `req` and `res` objects as arguments.
+     *                           This function receives `req` and `res` objects as arguments.
      * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
      * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
      * @example
      * coreroute.put('/api/items/:id', (req, res) => {
-     *   // Handle update item logic
+     *   // Handle update item logic
      * });
      */
     put(routePattern, callback) {
@@ -88,12 +86,12 @@ export class CoreRoute {
      *<br>
      * @param {string} route The path for the POST request.
      * @param {function} callback The function to handle the POST request.
-     *                           This function receives `req` and `res` objects as arguments
+     *                           This function receives `req` and `res` objects as arguments
      * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
      * @param {http.ServerResponse} callback.res - An http.ServerResponse object..
      * @example
      * coreroute.post('/api/items', (req, res) => {
-     *   // Handle create item logic
+     *   // Handle create item logic
      * });
      */
     post(routePattern, callback) {
@@ -110,12 +108,12 @@ export class CoreRoute {
      *<br>
      * @param {string} route The path for the DELETE request.
      * @param {function} callback The function to handle the DELETE request.
-     *                           This function receives `req` and `res` objects as arguments.
+     *                           This function receives `req` and `res` objects as arguments.
      * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
      * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
      * @example
      * coreroute.delete('/api/items/:id', (req, res) => {
-     *   // Handle delete item logic
+     *   // Handle delete item logic
      * });
      */
     delete(routePattern, callback) {
@@ -132,12 +130,12 @@ export class CoreRoute {
      *<br>
      * @param {string} route The path for the PATCH request.
      * @param {function} callback The function to handle the PATCH request.
-     *                           This function receives `req` and `res` objects as arguments.
+     *                           This function receives `req` and `res` objects as arguments.
      * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
      * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
      * @example
      * coreroute.patch('/api/items/:id', (req, res) => {
-     *   // Handle partial update item logic
+     *   // Handle partial update item logic
      * });
      */
     patch(routePattern, callback) {
@@ -155,12 +153,12 @@ export class CoreRoute {
      *<br>
      * @param {string} route The path for the ALL methods request.
      * @param {function} callback The function to handle all types of requests to this route.
-     *                           This function receives `req` and `res` objects as arguments.
+     *                           This function receives `req` and `res` objects as arguments.
      * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
      * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
      * @example
      * coreroute.all('/api/items', (req, res) => {
-     *   // Handle request for any HTTP method to /api/items
+     *   // Handle request for any HTTP method to /api/items
      * });
      */
     all(routePattern, callback) {
@@ -225,6 +223,7 @@ export class CoreRoute {
         let server;
         let options = undefined;
         let listenCallback = undefined;
+        console.log('Current working directory (CWD) during server start:', process.cwd()); // ✅ Ajout de ce log
         if (typeof optionsOrCallback === 'function') {
             // Cas 1: listen(port, callback?) - HTTP avec callback optionnel
             listenCallback = optionsOrCallback;
@@ -248,6 +247,20 @@ export class CoreRoute {
             console.error('CoreRoute - Server startup error:', error.message);
         });
         server.listen(port, listenCallback);
+    }
+    /**
+     * Closes the server instance gracefully.
+     * This method stops the server from accepting new connections and
+     * closes all active connections. It is useful for shutting down the server programmatically,
+     * for example during testing or when the application needs to exit.
+     *
+     * @example
+     * ```typescript
+     * coreRoute.close(); // Stop the server
+     * ```
+     */
+    close() {
+        this.#serverInstance?.close();
     }
     /**
      * Dispatches incoming requests to the appropriate route handler or static file handler.<br>
@@ -296,7 +309,7 @@ export class CoreRoute {
                         route.handler(req, res); // Appel du handler de la route
                     }
                     catch (error) {
-                        this.#errorHandler(res, 500, "Internal Server Error");
+                        this.#errorHandler(res, 500, "Internal Server Error : " + error);
                     }
                     return; // Arrêt après avoir trouvé et exécuté une route correspondante
                 }
@@ -376,7 +389,7 @@ export class CoreRoute {
      * @private
      * @param {string} file The path to the file.
      * @returns {string} The MIME type string for the file.
-     *                  Defaults to 'application/octet-stream' if the extension is not found.
+     *                  Defaults to 'application/octet-stream' if the extension is not found.
      * @see {@link https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types} for common MIME types.
      */
     #getMimeType(file) {
@@ -474,7 +487,7 @@ export class CoreRoute {
      */
     #pathToRegex(routePattern) {
         const paramNames = [];
-        const escapedRoutePattern = routePattern.replace(/[\/\\]/g, '\/');
+        const escapedRoutePattern = routePattern.replace(/[/\\]/g, '/');
         const regexString = escapedRoutePattern.split('/').map(segment => {
             if (segment.startsWith(':')) {
                 const paramName = segment.substring(1);
@@ -482,10 +495,10 @@ export class CoreRoute {
                 return `(?<${paramName}>[^\\/]+)`;
             }
             else {
-                return segment ? segment.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') : '';
+                return segment ? segment.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&') : '';
             }
         }).filter(segmentRegex => segmentRegex !== '').join('/');
-        const regex = new RegExp(`^${regexString}$`);
+        const regex = new RegExp(`^/${regexString}$`);
         return { regex, paramNames };
     }
 }
