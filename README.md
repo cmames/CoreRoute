@@ -1,6 +1,6 @@
 # CoreRoute
 
-[![npm version](https://badge.fury.io/js/coreroute.svg?cachebuster=<%= Date.now() %>)](https://badge.fury.io/js/coreroute.svg)
+[![npm version](https://badge.fury.io/js/coreroute.svg](https://badge.fury.io/js/coreroute.svg??cachebuster=<%= Date.now() %>)
 [![License: GPL-3.0-or-later](https://img.shields.io/badge/License-GPL--3.0--or--later-blueviolet)](https://spdx.org/licenses/GPL-3.0-or-later.html)
 ![GitHub last commit](https://img.shields.io/github/last-commit/cmames/coreroute)
 
