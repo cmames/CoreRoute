@@ -1,8 +1,4 @@
 /**
- * {@packageDocumentation}
- *
- * @package coreroute
- *
  * A Simplified HTTP Router for Node.js Applications.
  *
  * CoreRoute is a lightweight and straightforward HTTP router class designed for Node.js applications.
@@ -12,7 +8,7 @@
  *
  * @remarks
  * This documentation provides details on the CoreRoute API, including classes, methods, and interfaces.
- * For getting started guides and usage examples, please refer to the main [README.md](README.md) file.
+ * For getting started guides and usage examples, please refer to the main [README.md](./README.md) file.
  *
  * @license [GPL-3.0-or-later](https://spdx.org/licenses/GPL-3.0-or-later.html)
  * @author Mames Christophe

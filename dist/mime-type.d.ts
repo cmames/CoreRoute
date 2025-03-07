@@ -7,7 +7,15 @@
  * defining and using the mime types.
  */
 /**
- * Type alias for a MIME type map, where keys are file extensions and values are MIME types.
+ * Type alias for a MIME type map.
+ *
+ * A `MimeTypeMap` is a dictionary-like object (map) where keys are file extensions
+ * (e.g., 'json', 'html', 'png') and values are the corresponding MIME type strings
+ * (e.g., 'application/json', 'text/html', 'image/png').
+ *
+ * This type is used to define and customize the mapping between file extensions and
+ * MIME types recognized by CoreRoute for serving static files.
+ *
  */
 export type MimeTypeMap = {
     [key: string]: string;
@@ -28,7 +36,6 @@ export declare class MimeTypes {
      * @returns {string} The MIME type string for the file.
      *                  Defaults to 'application/octet-stream' if the extension is not found.
      * @see {@link https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types} for common MIME types.
-     * @static
      */
     static getType(file: string): string;
     /**
@@ -52,7 +59,6 @@ export declare class MimeTypes {
      * This change is global and affects all uses of MimeTypes.getType().
      * @param extension The file extension (e.g., 'custom').
      * @param mimeType The MIME type string (e.g., 'application/x-custom').
-     * @static
      */
     addType(extension: string, mimeType: string): void;
 }

@@ -92,7 +92,6 @@ export class MimeTypes {
      * @returns {string} The MIME type string for the file.
      *                  Defaults to 'application/octet-stream' if the extension is not found.
      * @see {@link https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types} for common MIME types.
-     * @static
      */
     static getType(file) {
         const extension = path.extname(file).toLowerCase().substring(1);
@@ -124,7 +123,6 @@ export class MimeTypes {
      * This change is global and affects all uses of MimeTypes.getType().
      * @param extension The file extension (e.g., 'custom').
      * @param mimeType The MIME type string (e.g., 'application/x-custom').
-     * @static
      */
     addType(extension, mimeType) {
         this.#localTypes[extension.toLowerCase()] = mimeType;

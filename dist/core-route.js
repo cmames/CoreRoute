@@ -48,11 +48,9 @@ export class CoreRoute {
     /**
      * Defines a callback function for handling GET requests to a specific route.<br>
      *<br>
-     * @param {string} route The path for the GET request (e.g., '/api/users').
-     * @param {function} callback The function to handle the GET request.
+     * @param {string} routePattern The path for the GET request (e.g., '/api/users').
+     * @param {CoreRouteRequestHandler} callback The function to handle the GET request.
      *                           This function receives `req` and `res` objects as arguments.
-     * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
-     * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
      * @example
      * coreroute.get('/api/users', (req, res) => {
      *   res.writeHead(200, {'Content-Type': 'application/json'});
@@ -69,13 +67,11 @@ export class CoreRoute {
         });
     }
     /**
-     * Defines a callback function for handling PUT requests to a specific route.<br>
+     * Defines a CoreRouteRequestHandler function for handling PUT requests to a specific route.<br>
      *<br>
-     * @param {string} route The path for the PUT request.
-     * @param {function} callback The function to handle the PUT request.
+     * @param {string} routePattern The path for the PUT request.
+     * @param {CoreRouteRequestHandler} callback The function to handle the PUT request.
      *                           This function receives `req` and `res` objects as arguments.
-     * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
-     * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
      * @example
      * coreroute.put('/api/items/:id', (req, res) => {
      *   // Handle update item logic
@@ -91,13 +87,11 @@ export class CoreRoute {
         });
     }
     /**
-     * Defines a callback function for handling POST requests to a specific route.<br>
+     * Defines a CoreRouteRequestHandler function for handling POST requests to a specific route.<br>
      *<br>
-     * @param {string} route The path for the POST request.
-     * @param {function} callback The function to handle the POST request.
+     * @param {string} routePattern The path for the POST request.
+     * @param {CoreRouteRequestHandler} callback The function to handle the POST request.
      *                           This function receives `req` and `res` objects as arguments
-     * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
-     * @param {http.ServerResponse} callback.res - An http.ServerResponse object..
      * @example
      * coreroute.post('/api/items', (req, res) => {
      *   // Handle create item logic
@@ -113,13 +107,11 @@ export class CoreRoute {
         });
     }
     /**
-     * Defines a callback function for handling DELETE requests to a specific route.<br>
+     * Defines a CoreRouteRequestHandler function for handling DELETE requests to a specific route.<br>
      *<br>
-     * @param {string} route The path for the DELETE request.
-     * @param {function} callback The function to handle the DELETE request.
+     * @param {string} routePattern The path for the DELETE request.
+     * @param {CoreRouteRequestHandler} callback The function to handle the DELETE request.
      *                           This function receives `req` and `res` objects as arguments.
-     * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
-     * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
      * @example
      * coreroute.delete('/api/items/:id', (req, res) => {
      *   // Handle delete item logic
@@ -135,13 +127,11 @@ export class CoreRoute {
         });
     }
     /**
-     * Defines a callback function for handling PATCH requests to a specific route.<br>
+     * Defines a CoreRouteRequestHandler function for handling PATCH requests to a specific route.<br>
      *<br>
-     * @param {string} route The path for the PATCH request.
-     * @param {function} callback The function to handle the PATCH request.
+     * @param {string} routePattern The path for the PATCH request.
+     * @param {CoreRouteRequestHandler} callback The function to handle the PATCH request.
      *                           This function receives `req` and `res` objects as arguments.
-     * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
-     * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
      * @example
      * coreroute.patch('/api/items/:id', (req, res) => {
      *   // Handle partial update item logic
@@ -157,15 +147,13 @@ export class CoreRoute {
         });
     }
     /**
-     * Defines a callback function for handling requests for ALL HTTP methods to a specific route.<br>
+     * Defines a CoreRouteRequestHandler function for handling requests for ALL HTTP methods to a specific route.<br>
      * This is useful for implementing route handlers that should respond to any type of HTTP request.<br>
      *<br>
-     * @param {string} route The path for the ALL methods request.
-     * @param {function} callback The function to handle all types of requests to this route.
+     * @param {string} routePattern The path for the ALL methods request.
+     * @param {CoreRouteRequestHandler} callback The function to handle all types of requests to this route.
      *                           This function receives `req` and `res` objects as arguments.
-     * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
-     * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
-     * @example
+    * @example
      * coreroute.all('/api/items', (req, res) => {
      *   // Handle request for any HTTP method to /api/items
      * });
