@@ -45,6 +45,7 @@ CoreRoute is packed with features designed to make your Node.js routing simple, 
     *   Enable static file serving from a specified folder with a single method call (`serveStaticFiles('./public')`).
     *   Automatic handling of common MIME types for efficient file delivery.
     *   Serve HTML, CSS, JavaScript, images, and other static assets with ease.
+    *   Refuses to serve files or folders beginning with a dot, such as .htaccess
 
 *   **Lightweight and High-Performance:**
     *   Lean implementation focused solely on routing and static file serving.
@@ -244,7 +245,7 @@ You can then modify the source code, **ensuring you run linting and tests after 
 
 ## Documentation
 
-For detailed API documentation, please refer to the generated documentation in the [**docs**](./docs) folder of this npm package after installation. You can find information about all classes, methods, and types available in CoreRoute within the documentation.
+For detailed API documentation, please refer to the generated documentation in the [**docs**](./docs/markdown/) folder of this npm package after installation. You can find information about all classes, methods, and types available in CoreRoute within the documentation.
 
 ## License
 

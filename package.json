@@ -2,12 +2,14 @@
   "name": "coreroute",
   "version": "1.2.1",
   "description": "A simplified HTTP Router class for Node.js applications",
-  "main": "dist/coreroute.js",
+  "main": "dist/index.js",
   "types": "dist/coreroute.d.ts",
   "type": "module",
   "scripts": {
     ".xscripts": "chmod +x .github/scripts/patch.sh && chmod +x .github/scripts/minor.sh && chmod +x .github/scripts/major.sh",
-    "doc": "typedoc --plugin typedoc-plugin-markdown src/coreroute.ts",
+    "doc:md": "rimraf docs/markdown && typedoc --plugin typedoc-plugin-markdown --out docs/markdown src/index.ts",
+    "doc:html": "rimraf docs/html && typedoc --out docs/html src/index.ts",
+    "doc": "(npm run doc:md && npm run doc:html) || (rimraf docs ; echo 'ERREUR: La génération de la documentation a échoué. Vérifiez les logs.')",
     "lint": "npx eslint src/**/*.ts",
     "build": "npx tsc",
     "patch": "npm run lint && npm run build && npm run doc && npm run .xscripts && .github/scripts/patch.sh",
@@ -53,6 +55,7 @@
   },
   "files": [
     "dist",
+    "docs",
     "README.md",
     "LICENSE"
   ]

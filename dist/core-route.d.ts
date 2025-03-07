@@ -1,3 +1,11 @@
+/**
+ * @module core-route
+ *
+ * Contains the main {@link CoreRoute} class, which is the HTTP router implementation for CoreRoute.
+ *
+ * This module exports the {@link CoreRoute} class and related interfaces and types necessary for
+ * defining and using the router.
+ */
 import * as http from 'http';
 import * as https from 'https';
 /**
