@@ -1,3 +1,7 @@
+**coreroute**
+
+***
+
 # CoreRoute
 
 ![NPM Version](https://img.shields.io/npm/v/coreroute)
@@ -249,9 +253,8 @@ For detailed API documentation, please refer to the generated documentation in t
 
 ## License
 
-This project is licensed under the [GPL-3.0-or-later License](https://spdx.org/licenses/GPL-3.0-or-later.html) - see the [LICENSE](./LICENSE) file for details.
+This project is licensed under the [GPL-3.0-or-later License](https://spdx.org/licenses/GPL-3.0-or-later.html) - see the [LICENSE](_media/LICENSE) file for details.
 
 ## Author
 
 **Mames Christophe**
-

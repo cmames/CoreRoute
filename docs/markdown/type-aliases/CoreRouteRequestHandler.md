@@ -2,16 +2,16 @@
 
 ***
 
-[coreroute](../globals.md) / RouteHandler
+[coreroute](../globals.md) / CoreRouteRequestHandler
 
-# Type Alias: RouteHandler()
+# Type Alias: CoreRouteRequestHandler()
 
-> **RouteHandler**: (`req`, `res`) => `void`
+> **CoreRouteRequestHandler**: (`req`, `res`) => `void`
 
-Defined in: [coreroute.ts:78](https://github.com/cmames/CoreRoute/blob/f1456cf58f95b7a85986eb66d828bfcb74b2c0c2/src/coreroute.ts#L78)
+Defined in: [core-route.ts:89](https://github.com/cmames/CoreRoute/blob/2116a239468e5fe8ebe82c1ab9ec167faafc5408/src/core-route.ts#L89)
 
 Type definition for route handler functions in CoreRoute.
-A RouteHandler function is responsible for processing incoming HTTP requests
+A CoreRouteRequestHandler function is responsible for processing incoming HTTP requests
 for a specific route and sending back a response.
 
 ## Parameters

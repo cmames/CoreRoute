@@ -1,7 +1,16 @@
+/**
+ * @module core-route
+ *
+ * Contains the main {@link CoreRoute} class, which is the HTTP router implementation for CoreRoute.
+ *
+ * This module exports the {@link CoreRoute} class and related interfaces and types necessary for
+ * defining and using the router.
+ */
 import * as http from 'http';
 import * as https from 'https';
 import * as fs from "fs";
 import * as path from "path";
+import { MimeTypes } from './mime-type';
 /**
  * @author Mames Christophe
  * @license GPL-3.0-or-later
@@ -39,11 +48,9 @@ export class CoreRoute {
     /**
      * Defines a callback function for handling GET requests to a specific route.<br>
      *<br>
-     * @param {string} route The path for the GET request (e.g., '/api/users').
-     * @param {function} callback The function to handle the GET request.
+     * @param {string} routePattern The path for the GET request (e.g., '/api/users').
+     * @param {CoreRouteRequestHandler} callback The function to handle the GET request.
      *                           This function receives `req` and `res` objects as arguments.
-     * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
-     * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
      * @example
      * coreroute.get('/api/users', (req, res) => {
      *   res.writeHead(200, {'Content-Type': 'application/json'});
@@ -60,13 +67,11 @@ export class CoreRoute {
         });
     }
     /**
-     * Defines a callback function for handling PUT requests to a specific route.<br>
+     * Defines a CoreRouteRequestHandler function for handling PUT requests to a specific route.<br>
      *<br>
-     * @param {string} route The path for the PUT request.
-     * @param {function} callback The function to handle the PUT request.
+     * @param {string} routePattern The path for the PUT request.
+     * @param {CoreRouteRequestHandler} callback The function to handle the PUT request.
      *                           This function receives `req` and `res` objects as arguments.
-     * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
-     * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
      * @example
      * coreroute.put('/api/items/:id', (req, res) => {
      *   // Handle update item logic
@@ -82,13 +87,11 @@ export class CoreRoute {
         });
     }
     /**
-     * Defines a callback function for handling POST requests to a specific route.<br>
+     * Defines a CoreRouteRequestHandler function for handling POST requests to a specific route.<br>
      *<br>
-     * @param {string} route The path for the POST request.
-     * @param {function} callback The function to handle the POST request.
+     * @param {string} routePattern The path for the POST request.
+     * @param {CoreRouteRequestHandler} callback The function to handle the POST request.
      *                           This function receives `req` and `res` objects as arguments
-     * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
-     * @param {http.ServerResponse} callback.res - An http.ServerResponse object..
      * @example
      * coreroute.post('/api/items', (req, res) => {
      *   // Handle create item logic
@@ -104,13 +107,11 @@ export class CoreRoute {
         });
     }
     /**
-     * Defines a callback function for handling DELETE requests to a specific route.<br>
+     * Defines a CoreRouteRequestHandler function for handling DELETE requests to a specific route.<br>
      *<br>
-     * @param {string} route The path for the DELETE request.
-     * @param {function} callback The function to handle the DELETE request.
+     * @param {string} routePattern The path for the DELETE request.
+     * @param {CoreRouteRequestHandler} callback The function to handle the DELETE request.
      *                           This function receives `req` and `res` objects as arguments.
-     * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
-     * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
      * @example
      * coreroute.delete('/api/items/:id', (req, res) => {
      *   // Handle delete item logic
@@ -126,13 +127,11 @@ export class CoreRoute {
         });
     }
     /**
-     * Defines a callback function for handling PATCH requests to a specific route.<br>
+     * Defines a CoreRouteRequestHandler function for handling PATCH requests to a specific route.<br>
      *<br>
-     * @param {string} route The path for the PATCH request.
-     * @param {function} callback The function to handle the PATCH request.
+     * @param {string} routePattern The path for the PATCH request.
+     * @param {CoreRouteRequestHandler} callback The function to handle the PATCH request.
      *                           This function receives `req` and `res` objects as arguments.
-     * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
-     * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
      * @example
      * coreroute.patch('/api/items/:id', (req, res) => {
      *   // Handle partial update item logic
@@ -148,15 +147,13 @@ export class CoreRoute {
         });
     }
     /**
-     * Defines a callback function for handling requests for ALL HTTP methods to a specific route.<br>
+     * Defines a CoreRouteRequestHandler function for handling requests for ALL HTTP methods to a specific route.<br>
      * This is useful for implementing route handlers that should respond to any type of HTTP request.<br>
      *<br>
-     * @param {string} route The path for the ALL methods request.
-     * @param {function} callback The function to handle all types of requests to this route.
+     * @param {string} routePattern The path for the ALL methods request.
+     * @param {CoreRouteRequestHandler} callback The function to handle all types of requests to this route.
      *                           This function receives `req` and `res` objects as arguments.
-     * @param {http.IncomingMessage} callback.req - An http.IncomingMessage object.
-     * @param {http.ServerResponse} callback.res - An http.ServerResponse object.
-     * @example
+    * @example
      * coreroute.all('/api/items', (req, res) => {
      *   // Handle request for any HTTP method to /api/items
      * });
@@ -368,102 +365,25 @@ export class CoreRoute {
      * @param {http.ServerResponse} res The HTTP server response object.
      */
     #serveFile(filePath, req, res) {
-        fs.access(filePath, fs.constants.R_OK, (accessErr) => {
-            if (!accessErr) {
-                const mimeType = this.#getMimeType(filePath);
-                res.writeHead(200, { "Content-Type": mimeType });
-                const stream = fs.createReadStream(filePath);
-                stream.on('error', this.#errorHandler.bind(this, res, 500, "Internal Server Error during static file service"));
-                stream.pipe(res);
-            }
-            else {
-                this.#errorHandler(res, 404, "File Not Found");
-            }
-        });
+        const dotfile = /^.*\/\..*$/;
+        if (dotfile.test(filePath)) {
+            this.#errorHandler(res, 403, "Forbidden");
+        }
+        else {
+            fs.access(filePath, fs.constants.R_OK, (accessErr) => {
+                if (!accessErr) {
+                    const mimeType = MimeTypes.getType(filePath);
+                    res.writeHead(200, { "Content-Type": mimeType });
+                    const stream = fs.createReadStream(filePath);
+                    stream.on('error', this.#errorHandler.bind(this, res, 500, "Internal Server Error during static file service"));
+                    stream.pipe(res);
+                }
+                else {
+                    this.#errorHandler(res, 404, "File Not Found");
+                }
+            });
+        }
     }
-    /**
-     * Determines the MIME type of a file based on its extension.<br>
-     * Uses a predefined list of common MIME types. If the extension is not recognized,<br>
-     * it defaults to 'application/octet-stream'.<br>
-     *<br>
-     * @private
-     * @param {string} file The path to the file.
-     * @returns {string} The MIME type string for the file.
-     *                  Defaults to 'application/octet-stream' if the extension is not found.
-     * @see {@link https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types} for common MIME types.
-     */
-    #getMimeType(file) {
-        const extension = path.extname(file).toLowerCase().substring(1);
-        const mimeTypes = {
-            aac: "audio/aac", // fichier audio AAC
-            abw: "application/x-abiword", // document AbiWord
-            arc: "application/octet-stream", // archive (contenant plusieurs fichiers)
-            avi: "video/x-msvideo", // AVI : Audio Video Interleave
-            azw: "application/vnd.amazon.ebook", // format pour eBook Amazon Kindle
-            bin: "application/octet-stream", // n'importe quelle donnée binaire
-            bmp: "image/bmp", // Images bitmap Windows OS/2
-            bz: "application/x-bzip", // archive BZip
-            bz2: "application/x-bzip2", // archive BZip2
-            csh: "application/x-csh", // script C-Shell
-            css: "text/css", // fichier Cascading Style Sheets (CSS)
-            csv: "text/csv", // fichier Comma-separated values (CSV)
-            doc: "application/msword", // Microsoft Word
-            docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // Microsoft Word (OpenXML)
-            eot: "application/vnd.ms-fontobject", // police MS Embedded OpenType
-            epub: "application/epub+zip", // fichier Electronic publication (EPUB)
-            gif: "image/gif", // fichier Graphics Interchange Format (GIF)
-            htm: "text/html", // .html fichier HyperText Markup Language (HTML)
-            html: "text/html", // .html fichier HyperText Markup Language (HTML)
-            ico: "image/x-icon", // icône
-            ics: "text/calendar", // élément iCalendar
-            jar: "application/java-archive", // archive Java (JAR)
-            jpg: "image/jpeg", // .jpg image JPEG
-            jpeg: "image/jpeg", // .jpg image JPEG
-            js: "application/javascript", // JavaScript (ECMAScript)
-            json: "application/json", // donnée au format JSON
-            mid: "audio/midi", // .midi fichier audio Musical Instrument Digital Interface (MIDI)
-            mpeg: "video/mpeg", // vidéo MPEG
-            mpkg: "application/vnd.apple.installer+xml", // paquet Apple Installer
-            odp: "application/vnd.oasis.opendocument.presentation", // présentation OpenDocument
-            ods: "application/vnd.oasis.opendocument.spreadsheet", // feuille de calcul OpenDocument
-            odt: "application/vnd.oasis.opendocument.text", // document texte OpenDocument
-            oga: "audio/ogg", // fichier audio OGG
-            ogv: "video/ogg", // fichier vidéo OGG
-            ogx: "application/ogg", // OGG
-            otf: "font/otf", // police OpenType
-            png: "image/png", // fichier Portable Network Graphics
-            pdf: "application/pdf", // Adobe Portable Document Format (PDF)
-            ppt: "application/vnd.ms-powerpoint", // présentation Microsoft PowerPoint
-            pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation", // présentation Microsoft PowerPoint (OpenXML)
-            rar: "application/x-rar-compressed", // archive RAR
-            rtf: "application/rtf", // Rich Text Format (RTF)
-            sh: "application/x-sh", // script shell
-            svg: "image/svg+xml", // fichier Scalable Vector Graphics (SVG)
-            swf: "application/x-shockwave-flash", // fichier Small web format (SWF) ou Adobe Flash
-            tar: "application/x-tar", // fichier d'archive Tape Archive (TAR)
-            tif: "image/tiff", // .tiff image au format Tagged Image File Format (TIFF)
-            ts: "application/typescript", // fichier Typescript
-            ttf: "font/ttf", // police TrueType
-            vsd: "application/vnd.visio", // Microsoft Visio
-            wav: "audio/x-wav", // Waveform Audio Format
-            weba: "audio/webm", // fichier audio WEBM
-            webm: "video/webm", // fichier vidéo WEBM
-            webp: "image/webp", // image WEBP
-            woff: "font/woff", // police Web Open Font Format (WOFF)
-            woff2: "font/woff2", // police Web Open Font Format (WOFF)
-            xhtml: "application/xhtml+xml", // XHTML
-            xls: "application/vnd.ms-excel", // Microsoft Excel
-            xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // Microsoft Excel (OpenXML)
-            xml: "application/xml", // XML
-            xul: "application/vnd.mozilla.xul+xml", // XUL
-            zip: "application/zip", // archive ZIP
-            "3gp": "audio/3gpp dans le cas où le conteneur ne comprend pas de vidéo", // conteneur audio/vidéo 3GPP video/3gpp
-            "3g2": "audio/3gpp2 dans le cas où le conteneur ne comprend pas de vidéo", // conteneur audio/vidéo 3GPP2 video/3gpp2
-            "7z": "application/x-7z-compressed", // archive 7-zip
-        };
-        return mimeTypes[extension] || "application/octet-stream";
-    }
-    ;
     /**
      * Centralized error handler for sending error responses to the client.<br>
      * This method sets the appropriate HTTP status code and sends a plain text error message.<br>
