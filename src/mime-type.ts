@@ -147,6 +147,12 @@ export class MimeTypes {
      * @param mimeType The MIME type string (e.g., 'application/x-custom').
      */
     addType(extension: string, mimeType: string): void {
+        if (!extension) {
+            throw new Error('MimeTypes.addType - extension cannot be empty');
+        }
+        if (!mimeType) {
+            throw new Error('MimeTypes.addType - mimeType cannot be empty');
+        }
         this.#localTypes[extension.toLowerCase()] = mimeType;
     }
 }

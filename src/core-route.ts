@@ -259,7 +259,10 @@ export class CoreRoute {
      * @example
      * coreroute.serveStaticFiles('./public'); // Serve static files from the 'public' directory
      */
-     serveStaticFiles(folder: string) { 
+     serveStaticFiles(folder: string) {
+        if (!folder) {
+            throw new Error('CoreRoute.serveStaticFiles - folder path cannot be empty');
+        }
         this.#staticFolder = folder;
         this.#isStaticServingEnabled = true;
     }
@@ -303,12 +306,12 @@ export class CoreRoute {
      * ```
      */
     listen(port: number, optionsOrCallback?: https.ServerOptions | (() => void), callback?: () => void): void {
+        if (port < 0 || port > 65535) {
+            throw new Error('CoreRoute.listen - port must be a valid integer between 0 and 65535');
+        }
         let server: http.Server | https.Server;
         let options: https.ServerOptions | undefined = undefined;
         let listenCallback: (() => void) | undefined = undefined;
-        console.log('Current working directory (CWD) during server start:', process.cwd()); // ✅ Ajout de ce log
-
-
         if (typeof optionsOrCallback === 'function') {
             // Cas 1: listen(port, callback?) - HTTP avec callback optionnel
             listenCallback = optionsOrCallback;
