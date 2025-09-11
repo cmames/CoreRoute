@@ -13,5 +13,5 @@
  * @license [GPL-3.0-or-later](https://spdx.org/licenses/GPL-3.0-or-later.html)
  * @author Mames Christophe
  */
-export { CoreRoute } from './core-route';
-export { MimeTypes } from './mime-type';
+export { CoreRoute } from './core-route.js';
+export { MimeTypes } from './mime-type.js';

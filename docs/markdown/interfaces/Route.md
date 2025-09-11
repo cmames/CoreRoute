@@ -6,7 +6,7 @@
 
 # Interface: Route
 
-Defined in: [core-route.ts:52](https://github.com/cmames/CoreRoute/blob/2116a239468e5fe8ebe82c1ab9ec167faafc5408/src/core-route.ts#L52)
+Defined in: [core-route.ts:52](https://github.com/cmames/CoreRoute/blob/34fca531a4b922d9286707719d461be29f19fea2/src/core-route.ts#L52)
 
 Interface defining the structure of a route.
 Each route associates a URL pattern with a handler function.
@@ -17,7 +17,7 @@ Each route associates a URL pattern with a handler function.
 
 > **handler**: (`req`, `res`) => `void`
 
-Defined in: [core-route.ts:77](https://github.com/cmames/CoreRoute/blob/2116a239468e5fe8ebe82c1ab9ec167faafc5408/src/core-route.ts#L77)
+Defined in: [core-route.ts:77](https://github.com/cmames/CoreRoute/blob/34fca531a4b922d9286707719d461be29f19fea2/src/core-route.ts#L77)
 
 The handler function to be executed when the route is matched.
 It receives the request and response objects as arguments.
@@ -46,7 +46,7 @@ The HTTP server response object.
 
 > **paramNames**: `string`[]
 
-Defined in: [core-route.ts:70](https://github.com/cmames/CoreRoute/blob/2116a239468e5fe8ebe82c1ab9ec167faafc5408/src/core-route.ts#L70)
+Defined in: [core-route.ts:70](https://github.com/cmames/CoreRoute/blob/34fca531a4b922d9286707719d461be29f19fea2/src/core-route.ts#L70)
 
 **`Internal`**
 
@@ -60,7 +60,7 @@ Example: ['userId'] for the pattern '/api/users/:userId'.
 
 > **regex**: `RegExp`
 
-Defined in: [core-route.ts:64](https://github.com/cmames/CoreRoute/blob/2116a239468e5fe8ebe82c1ab9ec167faafc5408/src/core-route.ts#L64)
+Defined in: [core-route.ts:64](https://github.com/cmames/CoreRoute/blob/34fca531a4b922d9286707719d461be29f19fea2/src/core-route.ts#L64)
 
 **`Internal`**
 
@@ -74,7 +74,7 @@ Used internally for efficient URL matching.
 
 > **routePattern**: `string`
 
-Defined in: [core-route.ts:58](https://github.com/cmames/CoreRoute/blob/2116a239468e5fe8ebe82c1ab9ec167faafc5408/src/core-route.ts#L58)
+Defined in: [core-route.ts:58](https://github.com/cmames/CoreRoute/blob/34fca531a4b922d9286707719d461be29f19fea2/src/core-route.ts#L58)
 
 The URL pattern to match for this route.
 Can include parameters in the format `:paramName`.
