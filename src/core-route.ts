@@ -11,7 +11,7 @@ import * as http from 'http';
 import * as https from 'https';
 import * as fs from "fs";
 import * as path from "path";
-import { MimeTypes } from './mime-type';
+import { MimeTypes } from './mime-type.js';
 
 /**
  * @module http-augmentation
