@@ -8,7 +8,7 @@
 
 > **CoreRouteRequestHandler** = (`req`, `res`) => `void`
 
-Defined in: [core-route.ts:89](https://github.com/cmames/CoreRoute/blob/3933299f4158d8120f5798b478e080f7de143ff3/src/core-route.ts#L89)
+Defined in: [core-route.ts:89](https://github.com/cmames/CoreRoute/blob/5de861c0066de96dea5fafcb206dcb0aad898902/src/core-route.ts#L89)
 
 Type definition for route handler functions in CoreRoute.
 A CoreRouteRequestHandler function is responsible for processing incoming HTTP requests
