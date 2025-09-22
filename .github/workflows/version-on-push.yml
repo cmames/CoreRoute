@@ -59,7 +59,7 @@ jobs:
         if: steps.set_git_tag.outputs.ESLINT_STATUS == 'success'
         uses: actions/setup-node@v4
         with:
-          node-version: 18.19.0
+          node-version: 18.19
           registry-url: https://registry.npmjs.org/
 
       - name: Authentification auprès de npm
