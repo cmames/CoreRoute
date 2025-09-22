@@ -99,6 +99,44 @@ export declare class CoreRoute {
      */
     constructor();
     /**
+     * Retrieves the current CORS headers configuration.
+     * <br>
+     * This method allows developers to inspect the current CORS policy.
+     *
+     * @public
+     * @returns {Object} An object containing the configured CORS headers.
+     */
+    getCors(): {
+        [x: string]: string | string[];
+    };
+    /**
+         * Sets a new CORS header configuration.
+         * <br>
+         * This method allows developers to override the default CORS policy for the entire application,
+         * providing fine-grained control over cross-origin requests.
+         *
+         * @public
+         * @param {Object} options An object containing key-value pairs of CORS headers.
+         * @example
+         * // To allow requests only from a specific domain
+         * const coreRoute = new CoreRoute();
+         * coreRoute.setCors({
+         * 'Access-Control-Allow-Origin': 'https://mon-application.com',
+         * 'Access-Control-Allow-Methods': 'GET, POST',
+         * 'Access-Control-Allow-Headers': 'Content-Type'
+         * });
+         *
+         * // To re-enable the default wildcard policy
+         * coreRoute.setCors({
+         * 'Access-Control-Allow-Origin': '*',
+         * 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+         * 'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+         * });
+         */
+    setCors(options: {
+        [key: string]: string | string[];
+    }): void;
+    /**
      * Defines a callback function for handling GET requests to a specific route.<br>
      *<br>
      * @param {string} routePattern The path for the GET request (e.g., '/api/users').
