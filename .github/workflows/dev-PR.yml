@@ -8,10 +8,13 @@ on:
 jobs:
   dev_to_main_pr:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2 # Récupérer l'historique pour comparer avec le commit précédent
+          fetch-depth: 2
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

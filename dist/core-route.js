@@ -31,6 +31,11 @@ export class CoreRoute {
     #serverInstance;
     #staticFolder;
     #isStaticServingEnabled;
+    #corsOptions = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+    };
     /**
      * Constructor for the CoreRoute class.<br>
      * Initializes route storage and server settings.<br>
@@ -44,6 +49,44 @@ export class CoreRoute {
         this.#serverInstance = null;
         this.#staticFolder = '';
         this.#isStaticServingEnabled = false;
+    }
+    /**
+     * Retrieves the current CORS headers configuration.
+     * <br>
+     * This method allows developers to inspect the current CORS policy.
+     *
+     * @public
+     * @returns {Object} An object containing the configured CORS headers.
+     */
+    getCors() {
+        return { ...this.#corsOptions }; // Return a copy to prevent external modification
+    }
+    /**
+         * Sets a new CORS header configuration.
+         * <br>
+         * This method allows developers to override the default CORS policy for the entire application,
+         * providing fine-grained control over cross-origin requests.
+         *
+         * @public
+         * @param {Object} options An object containing key-value pairs of CORS headers.
+         * @example
+         * // To allow requests only from a specific domain
+         * const coreRoute = new CoreRoute();
+         * coreRoute.setCors({
+         * 'Access-Control-Allow-Origin': 'https://mon-application.com',
+         * 'Access-Control-Allow-Methods': 'GET, POST',
+         * 'Access-Control-Allow-Headers': 'Content-Type'
+         * });
+         *
+         * // To re-enable the default wildcard policy
+         * coreRoute.setCors({
+         * 'Access-Control-Allow-Origin': '*',
+         * 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+         * 'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+         * });
+         */
+    setCors(options) {
+        this.#corsOptions = { ...options };
     }
     /**
      * Defines a callback function for handling GET requests to a specific route.<br>
@@ -269,7 +312,7 @@ export class CoreRoute {
      * @param {http.ServerResponse} res The HTTP server response object.
      */
     #dispatch(req, res) {
-        let routesArray = null; // 'routesArray' pour être plus clair que 'tab'
+        let routesArray = null;
         switch (req.method) {
             case "GET":
                 routesArray = this.#gets;
@@ -286,6 +329,12 @@ export class CoreRoute {
             case "PATCH":
                 routesArray = this.#patchs;
                 break;
+            case "OPTIONS": {
+                this.#applyCorsHeaders(res);
+                res.writeHead(204);
+                res.end();
+                return;
+            }
         }
         const requestUrl = req.url || '/';
         const url = new URL(requestUrl, `http://${req.headers.host}`);
@@ -301,14 +350,16 @@ export class CoreRoute {
                             }
                         }
                     }
-                    req.params = params; // Ajout de la propriété req.params à l'objet requête
+                    req.params = params;
+                    // ✅ Appliquer les en-têtes CORS juste avant d'appeler le handler
+                    this.#applyCorsHeaders(res);
                     try {
-                        route.handler(req, res); // Appel du handler de la route
+                        route.handler(req, res);
                     }
                     catch (error) {
                         this.#errorHandler(res, 500, "Internal Server Error : " + error);
                     }
-                    return; // Arrêt après avoir trouvé et exécuté une route correspondante
+                    return;
                 }
             }
         }
@@ -317,6 +368,16 @@ export class CoreRoute {
         }
         else {
             this.#errorHandler(res, 404, "Route Not Found"); // 404 si pas de route API correspondante et pas de fichiers statiques
+        }
+    }
+    /**
+     * Applies the configured CORS headers to the response object.
+     * @private
+     * @param {http.ServerResponse} res The response object.
+     */
+    #applyCorsHeaders(res) {
+        for (const header in this.#corsOptions) {
+            res.setHeader(header, this.#corsOptions[header]);
         }
     }
     /**
