@@ -11,6 +11,7 @@ import * as https from 'https';
 import * as fs from "fs";
 import * as path from "path";
 import { MimeTypes } from './mime-type.js';
+import { CoreRouteResponse } from './core-route-response.js';
 /**
  * @author Mames Christophe
  * @license GPL-3.0-or-later
@@ -351,10 +352,10 @@ export class CoreRoute {
                         }
                     }
                     req.params = params;
-                    // ✅ Appliquer les en-têtes CORS juste avant d'appeler le handler
+                    const coreRes = new CoreRouteResponse(res);
                     this.#applyCorsHeaders(res);
                     try {
-                        route.handler(req, res);
+                        route.handler(req, coreRes);
                     }
                     catch (error) {
                         this.#errorHandler(res, 500, "Internal Server Error : " + error);

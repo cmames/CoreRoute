@@ -12,6 +12,8 @@ import * as https from 'https';
 import * as fs from "fs";
 import * as path from "path";
 import { MimeTypes } from './mime-type.js';
+import { CoreRouteResponse } from './core-route-response.js';
+
 
 /**
  * @module http-augmentation
@@ -74,7 +76,7 @@ export interface Route {
      * @param req - The incoming HTTP request object.
      * @param res - The HTTP server response object.
      */
-    handler: (req: http.IncomingMessage, res: http.ServerResponse) => void;
+    handler: (req: http.IncomingMessage, res: CoreRouteResponse) => void;
 }
 
 /**
@@ -83,10 +85,10 @@ export interface Route {
  * for a specific route and sending back a response.
  *
  * @param {http.IncomingMessage} req - The incoming HTTP request object.
- * @param {http.ServerResponse} res - The HTTP server response object.
+ * @param {CoreRouteResponse} res - The CoreRoute response object.
  * @returns {void} - Route handlers should not return any value; they should manage the response directly using the 'res' object.
  */
-export type  CoreRouteRequestHandler = (req: http.IncomingMessage, res: http.ServerResponse) => void;
+export type  CoreRouteRequestHandler = (req: http.IncomingMessage, res: CoreRouteResponse) => void;
 
 /**
  * @author Mames Christophe
@@ -437,12 +439,10 @@ export class CoreRoute {
                         }
                     }
                     req.params = params;
-                    
-                    // ✅ Appliquer les en-têtes CORS juste avant d'appeler le handler
+                    const coreRes = new CoreRouteResponse(res);
                     this.#applyCorsHeaders(res);
-                    
                     try {
-                        route.handler(req, res);
+                        route.handler(req, coreRes);
                     } catch (error) {
                         this.#errorHandler(res, 500, "Internal Server Error : " + error);
                     }

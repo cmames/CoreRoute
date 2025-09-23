@@ -6,7 +6,7 @@
 
 # Class: CoreRoute
 
-Defined in: [core-route.ts:102](https://github.com/cmames/CoreRoute/blob/78f527ac17a4c9f2834c39f131b6b8636c702414/src/core-route.ts#L102)
+Defined in: [core-route.ts:104](https://github.com/cmames/CoreRoute/blob/9d673801b6019a05f35aa28de0804b6091eef2ab/src/core-route.ts#L104)
 
 ## Constructors
 
@@ -14,7 +14,7 @@ Defined in: [core-route.ts:102](https://github.com/cmames/CoreRoute/blob/78f527a
 
 > **new CoreRoute**(): `CoreRoute`
 
-Defined in: [core-route.ts:122](https://github.com/cmames/CoreRoute/blob/78f527ac17a4c9f2834c39f131b6b8636c702414/src/core-route.ts#L122)
+Defined in: [core-route.ts:124](https://github.com/cmames/CoreRoute/blob/9d673801b6019a05f35aa28de0804b6091eef2ab/src/core-route.ts#L124)
 
 Constructor for the CoreRoute class.<br>
 Initializes route storage and server settings.<br>
@@ -29,7 +29,7 @@ Initializes route storage and server settings.<br>
 
 > **all**(`routePattern`, `callback`): `void`
 
-Defined in: [core-route.ts:292](https://github.com/cmames/CoreRoute/blob/78f527ac17a4c9f2834c39f131b6b8636c702414/src/core-route.ts#L292)
+Defined in: [core-route.ts:294](https://github.com/cmames/CoreRoute/blob/9d673801b6019a05f35aa28de0804b6091eef2ab/src/core-route.ts#L294)
 
 Defines a CoreRouteRequestHandler function for handling requests for ALL HTTP methods to a specific route.<br>
 This is useful for implementing route handlers that should respond to any type of HTTP request.<br>
@@ -68,7 +68,7 @@ coreroute.all('/api/items', (req, res) => {
 
 > **close**(): `void`
 
-Defined in: [core-route.ts:395](https://github.com/cmames/CoreRoute/blob/78f527ac17a4c9f2834c39f131b6b8636c702414/src/core-route.ts#L395)
+Defined in: [core-route.ts:397](https://github.com/cmames/CoreRoute/blob/9d673801b6019a05f35aa28de0804b6091eef2ab/src/core-route.ts#L397)
 
 Closes the server instance gracefully.
 This method stops the server from accepting new connections and
@@ -91,7 +91,7 @@ coreRoute.close(); // Stop the server
 
 > **delete**(`routePattern`, `callback`): `void`
 
-Defined in: [core-route.ts:249](https://github.com/cmames/CoreRoute/blob/78f527ac17a4c9f2834c39f131b6b8636c702414/src/core-route.ts#L249)
+Defined in: [core-route.ts:251](https://github.com/cmames/CoreRoute/blob/9d673801b6019a05f35aa28de0804b6091eef2ab/src/core-route.ts#L251)
 
 Defines a CoreRouteRequestHandler function for handling DELETE requests to a specific route.<br>
 <br>
@@ -129,7 +129,7 @@ coreroute.delete('/api/items/:id', (req, res) => {
 
 > **get**(`routePattern`, `callback`): `void`
 
-Defined in: [core-route.ts:187](https://github.com/cmames/CoreRoute/blob/78f527ac17a4c9f2834c39f131b6b8636c702414/src/core-route.ts#L187)
+Defined in: [core-route.ts:189](https://github.com/cmames/CoreRoute/blob/9d673801b6019a05f35aa28de0804b6091eef2ab/src/core-route.ts#L189)
 
 Defines a callback function for handling GET requests to a specific route.<br>
 <br>
@@ -168,7 +168,7 @@ coreroute.get('/api/users', (req, res) => {
 
 > **getCors**(): `object`
 
-Defined in: [core-route.ts:143](https://github.com/cmames/CoreRoute/blob/78f527ac17a4c9f2834c39f131b6b8636c702414/src/core-route.ts#L143)
+Defined in: [core-route.ts:145](https://github.com/cmames/CoreRoute/blob/9d673801b6019a05f35aa28de0804b6091eef2ab/src/core-route.ts#L145)
 
 Retrieves the current CORS headers configuration.
 <br>
@@ -186,7 +186,7 @@ An object containing the configured CORS headers.
 
 > **listen**(`port`, `optionsOrCallback?`, `callback?`): `void`
 
-Defined in: [core-route.ts:352](https://github.com/cmames/CoreRoute/blob/78f527ac17a4c9f2834c39f131b6b8636c702414/src/core-route.ts#L352)
+Defined in: [core-route.ts:354](https://github.com/cmames/CoreRoute/blob/9d673801b6019a05f35aa28de0804b6091eef2ab/src/core-route.ts#L354)
 
 Starts the server on the specified port, optionally with HTTPS.<br>
 This method can start either an HTTP server or an HTTPS server based on the arguments provided.<br>
@@ -252,7 +252,7 @@ router.listen(8443, httpsOptionsNoCallback);
 
 > **patch**(`routePattern`, `callback`): `void`
 
-Defined in: [core-route.ts:270](https://github.com/cmames/CoreRoute/blob/78f527ac17a4c9f2834c39f131b6b8636c702414/src/core-route.ts#L270)
+Defined in: [core-route.ts:272](https://github.com/cmames/CoreRoute/blob/9d673801b6019a05f35aa28de0804b6091eef2ab/src/core-route.ts#L272)
 
 Defines a CoreRouteRequestHandler function for handling PATCH requests to a specific route.<br>
 <br>
@@ -290,7 +290,7 @@ coreroute.patch('/api/items/:id', (req, res) => {
 
 > **post**(`routePattern`, `callback`): `void`
 
-Defined in: [core-route.ts:228](https://github.com/cmames/CoreRoute/blob/78f527ac17a4c9f2834c39f131b6b8636c702414/src/core-route.ts#L228)
+Defined in: [core-route.ts:230](https://github.com/cmames/CoreRoute/blob/9d673801b6019a05f35aa28de0804b6091eef2ab/src/core-route.ts#L230)
 
 Defines a CoreRouteRequestHandler function for handling POST requests to a specific route.<br>
 <br>
@@ -328,7 +328,7 @@ coreroute.post('/api/items', (req, res) => {
 
 > **put**(`routePattern`, `callback`): `void`
 
-Defined in: [core-route.ts:207](https://github.com/cmames/CoreRoute/blob/78f527ac17a4c9f2834c39f131b6b8636c702414/src/core-route.ts#L207)
+Defined in: [core-route.ts:209](https://github.com/cmames/CoreRoute/blob/9d673801b6019a05f35aa28de0804b6091eef2ab/src/core-route.ts#L209)
 
 Defines a CoreRouteRequestHandler function for handling PUT requests to a specific route.<br>
 <br>
@@ -366,7 +366,7 @@ coreroute.put('/api/items/:id', (req, res) => {
 
 > **serveStaticFiles**(`folder`): `void`
 
-Defined in: [core-route.ts:309](https://github.com/cmames/CoreRoute/blob/78f527ac17a4c9f2834c39f131b6b8636c702414/src/core-route.ts#L309)
+Defined in: [core-route.ts:311](https://github.com/cmames/CoreRoute/blob/9d673801b6019a05f35aa28de0804b6091eef2ab/src/core-route.ts#L311)
 
 Enables serving static files from a specified folder.<br>
 When enabled, if a requested path does not match any defined API routes,<br>
@@ -397,7 +397,7 @@ coreroute.serveStaticFiles('./public'); // Serve static files from the 'public' 
 
 > **setCors**(`options`): `void`
 
-Defined in: [core-route.ts:171](https://github.com/cmames/CoreRoute/blob/78f527ac17a4c9f2834c39f131b6b8636c702414/src/core-route.ts#L171)
+Defined in: [core-route.ts:173](https://github.com/cmames/CoreRoute/blob/9d673801b6019a05f35aa28de0804b6091eef2ab/src/core-route.ts#L173)
 
 Sets a new CORS header configuration.
 <br>

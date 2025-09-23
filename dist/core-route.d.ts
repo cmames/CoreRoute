@@ -8,6 +8,7 @@
  */
 import * as http from 'http';
 import * as https from 'https';
+import { CoreRouteResponse } from './core-route-response.js';
 /**
  * @module http-augmentation
  * @description Augmentation of the built-in 'http' module to add custom properties.
@@ -68,7 +69,7 @@ export interface Route {
      * @param req - The incoming HTTP request object.
      * @param res - The HTTP server response object.
      */
-    handler: (req: http.IncomingMessage, res: http.ServerResponse) => void;
+    handler: (req: http.IncomingMessage, res: CoreRouteResponse) => void;
 }
 /**
  * Type definition for route handler functions in CoreRoute.
@@ -76,10 +77,10 @@ export interface Route {
  * for a specific route and sending back a response.
  *
  * @param {http.IncomingMessage} req - The incoming HTTP request object.
- * @param {http.ServerResponse} res - The HTTP server response object.
+ * @param {CoreRouteResponse} res - The CoreRoute response object.
  * @returns {void} - Route handlers should not return any value; they should manage the response directly using the 'res' object.
  */
-export type CoreRouteRequestHandler = (req: http.IncomingMessage, res: http.ServerResponse) => void;
+export type CoreRouteRequestHandler = (req: http.IncomingMessage, res: CoreRouteResponse) => void;
 /**
  * @author Mames Christophe
  * @license GPL-3.0-or-later

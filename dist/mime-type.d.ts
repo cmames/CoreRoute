@@ -39,6 +39,20 @@ export declare class MimeTypes {
      */
     static getType(file: string): string;
     /**
+     * Determines the MIME type of a file based on its extension.<br>
+     * Uses a predefined list of common MIME types.<br>
+     *<br>
+     * @param buffer The buffer containing first bytes as magic number.
+     * @returns The MIME type string for the buffer.
+     */
+    static getTypeFromBuffer(buffer: Buffer): string | null;
+    /**
+     * Determines the MIME type based on a file extension.
+     * @param {string} extension The file extension (without the leading dot).
+     * @returns {string | null} The MIME type string, or `null` if the extension is not found.
+     */
+    static getTypeFromExtension(extension: string): string | null;
+    /**
      * Get the custom MIME type list.
      *
      * @returns {MimeTypeMap} A dictionary (object) where keys are file extensions ...
