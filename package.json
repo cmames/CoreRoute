@@ -15,7 +15,8 @@
     "patch": "npm run lint && npm run build && npm run doc && npm run .xscripts && .github/scripts/patch.sh",
     "minor": "npm run lint && npm run build && npm run doc && npm run .xscripts && .github/scripts/minor.sh",
     "major": "npm run lint && npm run build && npm run doc && npm run .xscripts && .github/scripts/major.sh",
-    "test": "jest"
+    "test": "jest",
+    "hotfix": "git checkout main && git pull origin main && git checkout hotfix && git reset --hard main && git push --force && echo 'ready to hotfix'"
   },
   "repository": {
     "type": "git",
