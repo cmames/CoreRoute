@@ -97,8 +97,7 @@ export class CoreRoute {
      *                           This function receives `req` and `res` objects as arguments.
      * @example
      * coreroute.get('/api/users', (req, res) => {
-     *   res.writeHead(200, {'Content-Type': 'application/json'});
-     *   res.end(JSON.stringify({ message: 'User data' }));
+     *   res.status(200).json({ message: 'User data' });
      * });
      */
     get(routePattern, callback) {
@@ -118,7 +117,7 @@ export class CoreRoute {
      *                           This function receives `req` and `res` objects as arguments.
      * @example
      * coreroute.put('/api/items/:id', (req, res) => {
-     *   // Handle update item logic
+     *   res.status(200).json({ message: `Item ${req.params.id} updated` });
      * });
      */
     put(routePattern, callback) {

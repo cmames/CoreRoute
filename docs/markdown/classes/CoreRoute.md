@@ -6,7 +6,7 @@
 
 # Class: CoreRoute
 
-Defined in: [core-route.ts:104](https://github.com/cmames/CoreRoute/blob/9d673801b6019a05f35aa28de0804b6091eef2ab/src/core-route.ts#L104)
+Defined in: [core-route.ts:104](https://github.com/cmames/CoreRoute/blob/99726757497a135c267a146c12f920e95d5d4585/src/core-route.ts#L104)
 
 ## Constructors
 
@@ -14,7 +14,7 @@ Defined in: [core-route.ts:104](https://github.com/cmames/CoreRoute/blob/9d67380
 
 > **new CoreRoute**(): `CoreRoute`
 
-Defined in: [core-route.ts:124](https://github.com/cmames/CoreRoute/blob/9d673801b6019a05f35aa28de0804b6091eef2ab/src/core-route.ts#L124)
+Defined in: [core-route.ts:124](https://github.com/cmames/CoreRoute/blob/99726757497a135c267a146c12f920e95d5d4585/src/core-route.ts#L124)
 
 Constructor for the CoreRoute class.<br>
 Initializes route storage and server settings.<br>
@@ -29,7 +29,7 @@ Initializes route storage and server settings.<br>
 
 > **all**(`routePattern`, `callback`): `void`
 
-Defined in: [core-route.ts:294](https://github.com/cmames/CoreRoute/blob/9d673801b6019a05f35aa28de0804b6091eef2ab/src/core-route.ts#L294)
+Defined in: [core-route.ts:293](https://github.com/cmames/CoreRoute/blob/99726757497a135c267a146c12f920e95d5d4585/src/core-route.ts#L293)
 
 Defines a CoreRouteRequestHandler function for handling requests for ALL HTTP methods to a specific route.<br>
 This is useful for implementing route handlers that should respond to any type of HTTP request.<br>
@@ -68,7 +68,7 @@ coreroute.all('/api/items', (req, res) => {
 
 > **close**(): `void`
 
-Defined in: [core-route.ts:397](https://github.com/cmames/CoreRoute/blob/9d673801b6019a05f35aa28de0804b6091eef2ab/src/core-route.ts#L397)
+Defined in: [core-route.ts:396](https://github.com/cmames/CoreRoute/blob/99726757497a135c267a146c12f920e95d5d4585/src/core-route.ts#L396)
 
 Closes the server instance gracefully.
 This method stops the server from accepting new connections and
@@ -91,7 +91,7 @@ coreRoute.close(); // Stop the server
 
 > **delete**(`routePattern`, `callback`): `void`
 
-Defined in: [core-route.ts:251](https://github.com/cmames/CoreRoute/blob/9d673801b6019a05f35aa28de0804b6091eef2ab/src/core-route.ts#L251)
+Defined in: [core-route.ts:250](https://github.com/cmames/CoreRoute/blob/99726757497a135c267a146c12f920e95d5d4585/src/core-route.ts#L250)
 
 Defines a CoreRouteRequestHandler function for handling DELETE requests to a specific route.<br>
 <br>
@@ -129,7 +129,7 @@ coreroute.delete('/api/items/:id', (req, res) => {
 
 > **get**(`routePattern`, `callback`): `void`
 
-Defined in: [core-route.ts:189](https://github.com/cmames/CoreRoute/blob/9d673801b6019a05f35aa28de0804b6091eef2ab/src/core-route.ts#L189)
+Defined in: [core-route.ts:188](https://github.com/cmames/CoreRoute/blob/99726757497a135c267a146c12f920e95d5d4585/src/core-route.ts#L188)
 
 Defines a callback function for handling GET requests to a specific route.<br>
 <br>
@@ -157,8 +157,7 @@ The function to handle the GET request.
 
 ```ts
 coreroute.get('/api/users', (req, res) => {
-  res.writeHead(200, {'Content-Type': 'application/json'});
-  res.end(JSON.stringify({ message: 'User data' }));
+  res.status(200).json({ message: 'User data' });
 });
 ```
 
@@ -168,7 +167,7 @@ coreroute.get('/api/users', (req, res) => {
 
 > **getCors**(): `object`
 
-Defined in: [core-route.ts:145](https://github.com/cmames/CoreRoute/blob/9d673801b6019a05f35aa28de0804b6091eef2ab/src/core-route.ts#L145)
+Defined in: [core-route.ts:145](https://github.com/cmames/CoreRoute/blob/99726757497a135c267a146c12f920e95d5d4585/src/core-route.ts#L145)
 
 Retrieves the current CORS headers configuration.
 <br>
@@ -186,7 +185,7 @@ An object containing the configured CORS headers.
 
 > **listen**(`port`, `optionsOrCallback?`, `callback?`): `void`
 
-Defined in: [core-route.ts:354](https://github.com/cmames/CoreRoute/blob/9d673801b6019a05f35aa28de0804b6091eef2ab/src/core-route.ts#L354)
+Defined in: [core-route.ts:353](https://github.com/cmames/CoreRoute/blob/99726757497a135c267a146c12f920e95d5d4585/src/core-route.ts#L353)
 
 Starts the server on the specified port, optionally with HTTPS.<br>
 This method can start either an HTTP server or an HTTPS server based on the arguments provided.<br>
@@ -252,7 +251,7 @@ router.listen(8443, httpsOptionsNoCallback);
 
 > **patch**(`routePattern`, `callback`): `void`
 
-Defined in: [core-route.ts:272](https://github.com/cmames/CoreRoute/blob/9d673801b6019a05f35aa28de0804b6091eef2ab/src/core-route.ts#L272)
+Defined in: [core-route.ts:271](https://github.com/cmames/CoreRoute/blob/99726757497a135c267a146c12f920e95d5d4585/src/core-route.ts#L271)
 
 Defines a CoreRouteRequestHandler function for handling PATCH requests to a specific route.<br>
 <br>
@@ -290,7 +289,7 @@ coreroute.patch('/api/items/:id', (req, res) => {
 
 > **post**(`routePattern`, `callback`): `void`
 
-Defined in: [core-route.ts:230](https://github.com/cmames/CoreRoute/blob/9d673801b6019a05f35aa28de0804b6091eef2ab/src/core-route.ts#L230)
+Defined in: [core-route.ts:229](https://github.com/cmames/CoreRoute/blob/99726757497a135c267a146c12f920e95d5d4585/src/core-route.ts#L229)
 
 Defines a CoreRouteRequestHandler function for handling POST requests to a specific route.<br>
 <br>
@@ -328,7 +327,7 @@ coreroute.post('/api/items', (req, res) => {
 
 > **put**(`routePattern`, `callback`): `void`
 
-Defined in: [core-route.ts:209](https://github.com/cmames/CoreRoute/blob/9d673801b6019a05f35aa28de0804b6091eef2ab/src/core-route.ts#L209)
+Defined in: [core-route.ts:208](https://github.com/cmames/CoreRoute/blob/99726757497a135c267a146c12f920e95d5d4585/src/core-route.ts#L208)
 
 Defines a CoreRouteRequestHandler function for handling PUT requests to a specific route.<br>
 <br>
@@ -356,7 +355,7 @@ The function to handle the PUT request.
 
 ```ts
 coreroute.put('/api/items/:id', (req, res) => {
-  // Handle update item logic
+  res.status(200).json({ message: `Item ${req.params.id} updated` });
 });
 ```
 
@@ -366,7 +365,7 @@ coreroute.put('/api/items/:id', (req, res) => {
 
 > **serveStaticFiles**(`folder`): `void`
 
-Defined in: [core-route.ts:311](https://github.com/cmames/CoreRoute/blob/9d673801b6019a05f35aa28de0804b6091eef2ab/src/core-route.ts#L311)
+Defined in: [core-route.ts:310](https://github.com/cmames/CoreRoute/blob/99726757497a135c267a146c12f920e95d5d4585/src/core-route.ts#L310)
 
 Enables serving static files from a specified folder.<br>
 When enabled, if a requested path does not match any defined API routes,<br>
@@ -397,7 +396,7 @@ coreroute.serveStaticFiles('./public'); // Serve static files from the 'public' 
 
 > **setCors**(`options`): `void`
 
-Defined in: [core-route.ts:173](https://github.com/cmames/CoreRoute/blob/9d673801b6019a05f35aa28de0804b6091eef2ab/src/core-route.ts#L173)
+Defined in: [core-route.ts:173](https://github.com/cmames/CoreRoute/blob/99726757497a135c267a146c12f920e95d5d4585/src/core-route.ts#L173)
 
 Sets a new CORS header configuration.
 <br>
