@@ -289,6 +289,14 @@ export class CoreRoute {
         server.listen(port, listenCallback);
     }
     /**
+     * Retrieves the underlying HTTP or HTTPS server instance.
+     * This is useful for adding advanced features like WebSockets.
+     * @returns {http.Server | https.Server | null} The server instance, or null if the server has not been started.
+     */
+    getServerInstance() {
+        return this.#serverInstance;
+    }
+    /**
      * Closes the server instance gracefully.
      * This method stops the server from accepting new connections and
      * closes all active connections. It is useful for shutting down the server programmatically,
