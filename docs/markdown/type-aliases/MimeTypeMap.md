@@ -8,7 +8,7 @@
 
 > **MimeTypeMap**: `object`
 
-Defined in: [mime-type.ts:23](https://github.com/cmames/CoreRoute/blob/faf75b7bbb68ba68505f48ca3da87e8a9a91d0e5/src/mime-type.ts#L23)
+Defined in: [mime-type.ts:23](https://github.com/cmames/CoreRoute/blob/a48a546e615076935aa47f572b1d73a2199b7d8e/src/mime-type.ts#L23)
 
 Type alias for a MIME type map.
 
