@@ -72,10 +72,18 @@ export class MimeTypes {
         xml: "application/xml", // XML
         xul: "application/vnd.mozilla.xul+xml", // XUL
         zip: "application/zip", // archive ZIP
-        "3gp": "audio/3gpp dans le cas où le conteneur ne comprend pas de vidéo", // conteneur audio/vidéo 3GPP video/3gpp
-        "3g2": "audio/3gpp2 dans le cas où le conteneur ne comprend pas de vidéo", // conteneur audio/vidéo 3GPP2 video/3gpp2
+        "3gp": "audio/3gpp", // conteneur audio/vidéo 3GPP video/3gpp
+        "3g2": "audio/3gpp2", // conteneur audio/vidéo 3GPP2 video/3gpp2
         "7z": "application/x-7z-compressed" // archive 7-zip
     };
+    static #magicNumbers = [
+        { hex: 'FFD8FF', mimeType: 'image/jpeg' }, // JPEG
+        { hex: '89504E47', mimeType: 'image/png' }, // PNG
+        { hex: '47494638', mimeType: 'image/gif' }, // GIF
+        { hex: '52494646', mimeType: 'image/webp' }, // WEBP
+        { hex: '25504446', mimeType: 'application/pdf' }, // PDF
+        { hex: '494433', mimeType: 'audio/mpeg' } // MP3 (ID3 tag)
+    ];
     /**
      * Constructor for the MimeTypes class.<br>
      * Initializes a custom MIME types list.<br>
@@ -96,6 +104,33 @@ export class MimeTypes {
     static getType(file) {
         const extension = path.extname(file).toLowerCase().substring(1);
         return MimeTypes.#mimeTypeMap[extension] || 'application/octet-stream';
+    }
+    /**
+     * Determines the MIME type of a file based on its extension.<br>
+     * Uses a predefined list of common MIME types.<br>
+     *<br>
+     * @param buffer The buffer containing first bytes as magic number.
+     * @returns The MIME type string for the buffer.
+     */
+    static getTypeFromBuffer(buffer) {
+        if (!buffer || buffer.length < 4) {
+            return null;
+        }
+        const hexSignature = buffer.toString('hex', 0, 4).toUpperCase();
+        for (const entry of this.#magicNumbers) {
+            if (hexSignature.startsWith(entry.hex)) {
+                return entry.mimeType;
+            }
+        }
+        return null;
+    }
+    /**
+     * Determines the MIME type based on a file extension.
+     * @param {string} extension The file extension (without the leading dot).
+     * @returns {string | null} The MIME type string, or `null` if the extension is not found.
+     */
+    static getTypeFromExtension(extension) {
+        return MimeTypes.#mimeTypeMap[extension.toLowerCase()] || null;
     }
     /**
      * Get the custom MIME type list.

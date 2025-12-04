@@ -1,4 +1,4 @@
-import { CoreRoute } from '../src/coreroute';
+import { CoreRoute } from '../dist/core-route.js';
 // import supertest from 'supertest'; // Si vous utilisez supertest pour envoyer des requêtes HTTP de test en Node.js
 
 describe('CoreRoute', () => {

@@ -11,6 +11,7 @@ import * as https from 'https';
 import * as fs from "fs";
 import * as path from "path";
 import { MimeTypes } from './mime-type.js';
+import { CoreRouteResponse } from './core-route-response.js';
 /**
  * @author Mames Christophe
  * @license GPL-3.0-or-later
@@ -96,8 +97,7 @@ export class CoreRoute {
      *                           This function receives `req` and `res` objects as arguments.
      * @example
      * coreroute.get('/api/users', (req, res) => {
-     *   res.writeHead(200, {'Content-Type': 'application/json'});
-     *   res.end(JSON.stringify({ message: 'User data' }));
+     *   res.status(200).json({ message: 'User data' });
      * });
      */
     get(routePattern, callback) {
@@ -117,7 +117,7 @@ export class CoreRoute {
      *                           This function receives `req` and `res` objects as arguments.
      * @example
      * coreroute.put('/api/items/:id', (req, res) => {
-     *   // Handle update item logic
+     *   res.status(200).json({ message: `Item ${req.params.id} updated` });
      * });
      */
     put(routePattern, callback) {
@@ -289,6 +289,14 @@ export class CoreRoute {
         server.listen(port, listenCallback);
     }
     /**
+     * Retrieves the underlying HTTP or HTTPS server instance.
+     * This is useful for adding advanced features like WebSockets.
+     * @returns {http.Server | https.Server | null} The server instance, or null if the server has not been started.
+     */
+    getServerInstance() {
+        return this.#serverInstance;
+    }
+    /**
      * Closes the server instance gracefully.
      * This method stops the server from accepting new connections and
      * closes all active connections. It is useful for shutting down the server programmatically,
@@ -301,6 +309,19 @@ export class CoreRoute {
      */
     close() {
         this.#serverInstance?.close();
+    }
+    /**
+     * Type predicate to check if the result is a Promise-like object (Thenable).
+     *
+     * @private
+     * @param result - The value to check.
+     * @returns {result is Promise<void>} - Returns true if the object has a .then property and can be treated as a Promise.
+     */
+    #isPromise(result) {
+        // La vérification de 'then' in result garantit que 'then' existe,
+        // et le "as any" n'est plus nécessaire ici si l'on se fie à 'in'
+        // et à la vérification que l'objet n'est pas null.
+        return typeof result === 'object' && result !== null && 'then' in result;
     }
     /**
      * Dispatches incoming requests to the appropriate route handler or static file handler.<br>
@@ -351,10 +372,15 @@ export class CoreRoute {
                         }
                     }
                     req.params = params;
-                    // ✅ Appliquer les en-têtes CORS juste avant d'appeler le handler
+                    const coreRes = new CoreRouteResponse(res);
                     this.#applyCorsHeaders(res);
                     try {
-                        route.handler(req, res);
+                        const result = route.handler(req, coreRes);
+                        if (this.#isPromise(result)) {
+                            result.catch((error) => {
+                                this.#errorHandler(res, 500, "Internal Server Error : " + (error instanceof Error ? error.message : String(error)));
+                            });
+                        }
                     }
                     catch (error) {
                         this.#errorHandler(res, 500, "Internal Server Error : " + error);
