@@ -438,7 +438,6 @@ export class CoreRoute {
                     }
                     req.params = params;
                     
-                    // ✅ Appliquer les en-têtes CORS juste avant d'appeler le handler
                     this.#applyCorsHeaders(res);
                     
                     try {
