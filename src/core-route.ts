@@ -88,7 +88,7 @@ export interface Route {
  * @param {CoreRouteResponse} res - The CoreRoute response object.
  * @returns {void} - Route handlers should not return any value; they should manage the response directly using the 'res' object.
  */
-export type  CoreRouteRequestHandler = (req: http.IncomingMessage, res: CoreRouteResponse) => void;
+export type  CoreRouteRequestHandler = (req: http.IncomingMessage, res: CoreRouteResponse) =>  void | Promise<void>;
 
 /**
  * @author Mames Christophe
@@ -408,6 +408,20 @@ export class CoreRoute {
 
 
     /**
+     * Type predicate to check if the result is a Promise-like object (Thenable).
+     *
+     * @private
+     * @param result - The value to check.
+     * @returns {result is Promise<void>} - Returns true if the object has a .then property and can be treated as a Promise.
+     */
+    #isPromise(result: void | Promise<void>): result is Promise<void> {
+        // La vérification de 'then' in result garantit que 'then' existe,
+        // et le "as any" n'est plus nécessaire ici si l'on se fie à 'in'
+        // et à la vérification que l'objet n'est pas null.
+        return typeof result === 'object' && result !== null && 'then' in result;
+    }
+
+    /**
      * Dispatches incoming requests to the appropriate route handler or static file handler.<br>
      * This method is the core request handler for the HTTP server. It first checks for matching API routes.<br>
      * If no API route is found and static file serving is enabled, it attempts to serve a static file.<br>
@@ -450,7 +464,12 @@ export class CoreRoute {
                     const coreRes = new CoreRouteResponse(res);
                     this.#applyCorsHeaders(res);
                     try {
-                        route.handler(req, coreRes);
+                        const result=route.handler(req, coreRes);
+                        if (this.#isPromise(result)) {
+                            result.catch((error: unknown) => {
+                                this.#errorHandler(res, 500, "Internal Server Error : " + (error instanceof Error ? error.message : String(error)));
+                            });
+                        }
                     } catch (error) {
                         this.#errorHandler(res, 500, "Internal Server Error : " + error);
                     }

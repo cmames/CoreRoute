@@ -80,7 +80,7 @@ export interface Route {
  * @param {CoreRouteResponse} res - The CoreRoute response object.
  * @returns {void} - Route handlers should not return any value; they should manage the response directly using the 'res' object.
  */
-export type CoreRouteRequestHandler = (req: http.IncomingMessage, res: CoreRouteResponse) => void;
+export type CoreRouteRequestHandler = (req: http.IncomingMessage, res: CoreRouteResponse) => void | Promise<void>;
 /**
  * @author Mames Christophe
  * @license GPL-3.0-or-later
